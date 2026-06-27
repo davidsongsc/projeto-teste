@@ -16,3 +16,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  app:
+    build: .
+    container_name: logistic-order-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      PORT: ${PORT}
+    env_file:
+      - .env
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
