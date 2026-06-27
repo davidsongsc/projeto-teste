@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "types": ["node"],
-    "target": "es2020",
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2023",
+    "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "types": ["node"],
+    "ignoreDeprecations": "6.0"
   }
 }

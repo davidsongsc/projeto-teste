@@ -146,3 +146,4 @@ model Permission {
   updated_at  DateTime @updatedAt
 }
 ```
+
