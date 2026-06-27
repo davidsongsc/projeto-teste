@@ -11,12 +11,12 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   await prisma.user.createMany({
     data: [
-      { name: 'Alice', email: 'alice@prisma.io' },
-      { name: 'Bob', email: 'bob@prisma.io' },
-      { name: 'Carlos', email: 'carlos@prisma.io' },
-      { name: 'Ana', email: 'ana@prisma.io' },
-      { name: 'Maria', email: 'maria@prisma.io' },
-      { name: 'Pedro', email: 'pedro@prisma.io' }
+      { name: 'Alice', document: '123.456.789-00', email: 'alice@prisma.io' },
+      { name: 'Bob', document: '234.567.890-11', email: 'bob@prisma.io' },
+      { name: 'Carlos', document: '345.678.901-22', email: 'carlos@prisma.io' },
+      { name: 'Ana', document: '456.789.012-33', email: 'ana@prisma.io' },
+      { name: 'Maria', document: '567.890.123-44', email: 'maria@prisma.io' },
+      { name: 'Pedro', document: '678.901.234-55', email: 'pedro@prisma.io' }
     ],
     skipDuplicates: true
   })
