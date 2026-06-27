@@ -8,16 +8,22 @@ datasource db {
 }
 
 model User {
-  id         String     @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
-  document   String?    @unique
-  email      String     @unique
-  status     Boolean    @default(true)
+  email      String   @unique
+  password   String
+  status     Boolean  @default(true)
+
+  profileId  String?
+  profile    Profile? @relation(fields: [profileId], references: [id])
+
   customers  Customer[]
   orders     Order[]
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
+
 
 model Customer {
   id         String   @id @default(uuid())
@@ -31,13 +37,13 @@ model Customer {
 }
 
 model Profile {
-  id          String     @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
+  role        String
   description String?
-  status     Boolean    @default(true)
+  status      Boolean  @default(true)
+
   customers   Customer[]
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
 }
 
 model Product {
