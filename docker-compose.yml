@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - '${DB_PORT}:5432'
+      - "${DB_PORT}:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -16,18 +16,19 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
+
   app:
     build: .
     container_name: logistic-order-app
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-      PORT: ${PORT}
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    ports:
+      - "3000:3000"
     command: >
       sh -c "npx prisma migrate deploy && npm run start"
     volumes:
