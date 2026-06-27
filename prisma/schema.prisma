@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  
 }
 
 model User {
@@ -11,7 +12,7 @@ model User {
   name       String
   document   String?    @unique
   email      String     @unique
-  status     String
+  status     Boolean    @default(true)
   customers  Customer[]
   orders     Order[]
   created_at DateTime   @default(now())
@@ -20,6 +21,7 @@ model User {
 
 model Customer {
   id         String   @id @default(uuid())
+  status     Boolean    @default(true)
   profile    Profile  @relation(fields: [profileId], references: [id])
   profileId  String
   user       User     @relation(fields: [userId], references: [id])
@@ -32,6 +34,7 @@ model Profile {
   id          String     @id @default(uuid())
   name        String
   description String?
+  status     Boolean    @default(true)
   customers   Customer[]
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
@@ -41,7 +44,7 @@ model Product {
   id         String   @id @default(uuid())
   name       String
   price      Decimal  @db.Decimal(10, 2)
-  status     String
+  status     Boolean    @default(true)
   items      Item[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
