@@ -1,14 +1,36 @@
-version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    container_name: freela-facil-db
+    container_name: logistic-order-db
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: freela_facil
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - '5432:5432'
+      - "${DB_PORT}:5432"
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: logistic-order-app
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
