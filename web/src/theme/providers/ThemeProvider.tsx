@@ -3,6 +3,7 @@
 import { useMemo, ReactNode } from 'react';
 import { ConfigProvider, App, theme } from 'antd';
 import { lightColors, darkColors } from '../colors';
+import NotificationProvider from './NotificationProvider';
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -13,7 +14,7 @@ export default function ThemeProvider({
   children,
   themeType = "dark",
 }: ThemeProviderProps) {
-  
+
   const colors = themeType === "dark" ? darkColors : lightColors;
 
   const config = useMemo(() => ({
@@ -25,7 +26,7 @@ export default function ThemeProvider({
       colorTextBase: colors.text,
       colorTextSecondary: colors.textSecondary,
       colorBorder: colors.border,
-      borderRadius: 8, 
+      borderRadius: 8,
       fontSize: 14,
     },
     components: {
@@ -42,7 +43,9 @@ export default function ThemeProvider({
   return (
     <ConfigProvider theme={config}>
       <App>
-        {children}
+        <NotificationProvider>
+          {children}
+        </NotificationProvider>
       </App>
     </ConfigProvider>
   );
