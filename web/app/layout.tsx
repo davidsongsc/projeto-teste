@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
+import { AntdRegistry } from "@ant-design/nextjs-registry"; // Adicione isto
 import ThemeProvider from "@/src/theme/providers/ThemeProvider";
+import Header from "@/src/theme/components/Header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sistema ERP Teste",
@@ -31,9 +25,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <AntdRegistry>
+          <ThemeProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+          </ThemeProvider>
+        </AntdRegistry>
       </body>
     </html>
   );
