@@ -16,12 +16,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: logistic-order-redis
     ports:
       - "6379:6379"
-  app:
+
+  api: 
     build: .
     container_name: logistic-order-app
     depends_on:
@@ -35,8 +37,20 @@ services:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     ports:
       - "3030:3030"
-    command: >
-      sh -c "npx prisma migrate deploy && npm run start"
+    command: sh -c "npx prisma migrate deploy && npm run start"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+
+  web:
+    build: ./web
+    container_name: logistic-order-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3030
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      - api 

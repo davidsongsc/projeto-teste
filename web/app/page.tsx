@@ -15,7 +15,7 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-
+import { notification } from '@/src/components/Notification/notification';
 const { Title, Text } = Typography;
 
 export default function DashboardPage() {
