@@ -1,26 +1,49 @@
-"use client";
+'use client';
 
-import { App, ConfigProvider } from "antd";
-import { ReactNode, useMemo } from "react";
-import { antdDarkTheme, antdLightTheme } from "@/src/theme";
+import { useMemo, ReactNode } from 'react';
+import { ConfigProvider, App, theme } from 'antd';
+import { lightColors, darkColors } from '../colors';
 
 interface ThemeProviderProps {
   children: ReactNode;
-  theme?: "light" | "dark";
+  themeType?: "light" | "dark";
 }
 
 export default function ThemeProvider({
   children,
-  theme = "dark",
+  themeType = "dark",
 }: ThemeProviderProps) {
-  const config = useMemo(
-    () => (theme === "dark" ? antdDarkTheme : antdLightTheme),
-    [theme]
-  );
+  
+  const colors = themeType === "dark" ? darkColors : lightColors;
+
+  const config = useMemo(() => ({
+    algorithm: themeType === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    token: {
+      colorPrimary: colors.primary,
+      colorBgBase: colors.background,
+      colorBgContainer: colors.surface,
+      colorTextBase: colors.text,
+      colorTextSecondary: colors.textSecondary,
+      colorBorder: colors.border,
+      borderRadius: 8, 
+      fontSize: 14,
+    },
+    components: {
+      Card: {
+        headerBg: colors.surface,
+        colorBgContainer: colors.surface,
+      },
+      Button: {
+        borderRadius: 6,
+      }
+    }
+  }), [themeType, colors]);
 
   return (
     <ConfigProvider theme={config}>
-      <App>{children}</App>
+      <App>
+        {children}
+      </App>
     </ConfigProvider>
   );
 }
