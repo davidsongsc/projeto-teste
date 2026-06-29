@@ -12,7 +12,7 @@ import { CreateOrder } from '../Create';
 
 export const OrderList = () => {
     const router = useRouter();
-    const { user, isLoadingAuth } = useAuthStore(); // Adicionado estado de autenticação
+    const { user, isLoadingAuth } = useAuthStore(); 
     
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -22,7 +22,7 @@ export const OrderList = () => {
     const { orders, isLoading, pagination, fetchOrders, deleteOrder } = useOrders();
 
     useEffect(() => {
-        if (isLoadingAuth || !user) return;
+        if (!user) return;
 
         fetchOrders({
             page: currentPage,

@@ -17,6 +17,9 @@ export function CollaboratorActions({ record, onDelete }: Props) {
     const screens = useBreakpoint();
     const { updateCollaboratorStatus } = useCollaborators();
 
+    // Guard clause: if there is no record, return null or an empty fragment
+    if (!record) return null;
+
     const handleStatusChange = async (checked: boolean) => {
         await updateCollaboratorStatus(record.id, checked);
     };
@@ -24,14 +27,16 @@ export function CollaboratorActions({ record, onDelete }: Props) {
     return (
         <Space size={screens.md ? 'middle' : 'small'}>
             <Popconfirm
-                title={`Deseja ${record.status ? 'desativar' : 'ativar'} este colaborador?`}
+                // Using optional chaining and providing a fallback string
+                title={`Deseja ${record?.status ? 'desativar' : 'ativar'} este colaborador?`}
                 onConfirm={() => handleStatusChange(!record.status)}
                 okText="Sim"
                 cancelText="Não"
             >
                 <Switch
                     size="small"
-                    checked={record.status}
+                    // Force boolean with !! to avoid issues if status is undefined
+                    checked={!!record.status}
                     checkedChildren="Ativo"
                     unCheckedChildren="Inativo"
                 />

@@ -1,63 +1,118 @@
 import { ColumnsType } from 'antd/es/table';
+import { Tag, Space, Tooltip, Button } from 'antd';
 import { Order } from '@/src/interfaces/order';
-import { Tag, Space, Button } from 'antd';
 import { DeleteButton } from '@/src/components/Buttons/DeleteButton';
 import { EditOrder } from '../Edit';
+import { ShoppingCartOutlined } from '@ant-design/icons';
+
+const currency = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+});
+
+const statusMap = {
+    DRAFT: {
+        color: 'orange',
+        label: 'Rascunho',
+    },
+    CONFIRMED: {
+        color: 'green',
+        label: 'Confirmado',
+    },
+    CANCELLED: {
+        color: 'red',
+        label: 'Cancelado',
+    },
+};
+
 export const getOrderColumns = (
     onEdit: (id: string) => void,
     onDelete: (id: string) => void
 ): ColumnsType<Order> => [
         {
-            title: 'ID',
+            title: 'Pedido',
             dataIndex: 'id',
             key: 'id',
-            render: (id: string) => `${id.slice(0, 8)}`.toUpperCase(),
-            width: 80,
+            width: 150,
+            render: (id: string) => (
+                <Tooltip title={id}>
+                    #{id.slice(0, 8).toUpperCase()}
+                </Tooltip>
+            ),
         },
         {
-            title: 'Cliente',
+            title: 'Vendedor',
             dataIndex: ['user', 'name'],
             key: 'userName',
-            minWidth: 200,
-
+            sorter: (a, b) =>
+                (a.user?.name ?? '').localeCompare(b.user?.name ?? ''),
+            minWidth: 180,
         },
         {
-            title: 'Valor Total',
+            title: 'Itens',
+            key: 'items',
+            width: 90,
+            align: 'center',
+            render: (_, record) => record.items?.length ?? 0,
+        },
+        {
+            title: 'Valor',
             dataIndex: 'totalPrice',
             key: 'totalPrice',
-            render: (price) => `R$ ${Number(price).toFixed(2)}`,
-            width: 100,
+            width: 120,
+            align: 'right',
+            sorter: (a, b) => Number(a.totalPrice) - Number(b.totalPrice),
+            render: (value) => currency.format(Number(value)),
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            width: 130,
+            align: 'center',
             render: (status) => {
-                const colors: Record<string, string> = { DRAFT: 'orange', CONFIRMED: 'green', CANCELLED: 'red' };
-                return <Tag color={colors[status] || 'default'}>{status}</Tag>;
+                const item = statusMap[status] ?? {
+                    color: 'default',
+                    label: status,
+                };
+
+                return <Tag color={item.color}>{item.label}</Tag>;
             },
-            width: 100,
         },
         {
             title: 'Criado em',
             dataIndex: 'created_at',
             key: 'created_at',
+            width: 170,
+            sorter: (a, b) =>
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime(),
             render: (date: string) =>
                 new Intl.DateTimeFormat('pt-BR', {
                     dateStyle: 'short',
                     timeStyle: 'short',
                 }).format(new Date(date)),
-            minWidth: 150,
         },
         {
             title: 'Ações',
             key: 'action',
+            width: 120,
+            fixed: 'right',
             render: (_, record) => (
-                <Space size="middle">
+                <Space>
+                    <Button
+                        type="primary"
+                        icon={<ShoppingCartOutlined />}
+                        onClick={() => openCreateOrder(record)}
+                    >
+                        Novo Pedido
+                    </Button>
                     <EditOrder id={record.id} />
-                    <DeleteButton id={record.id} onConfirm={onDelete} />
+                    <DeleteButton
+                        id={record.id}
+                        onConfirm={onDelete}
+                    />
                 </Space>
             ),
-            minWidth: 200,
         },
     ];
