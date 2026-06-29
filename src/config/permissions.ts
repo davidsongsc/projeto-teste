@@ -1,0 +1,16 @@
+export const PERMISSIONS = {
+  // Usuários
+  USER_LIST:   'USER:LIST',   // Apenas ver a tabela
+  USER_VIEW:   'USER:VIEW',   // Ver detalhes específicos
+  USER_CREATE: 'USER:CREATE',
+  USER_UPDATE: 'USER:UPDATE',
+  USER_DELETE: 'USER:DELETE',
+
+  // Pedidos
+  ORDER_CREATE: 'ORDER:CREATE',
+  ORDER_CANCEL: 'ORDER:CANCEL',
+  ORDER_VIEW:   'ORDER:VIEW',
+  ORDER_LIST:   'ORDER:LIST',
+  ORDER_UPDATE: 'ORDER:UPDATE',
+  ORDER_DELETE: 'ORDER:DELETE'
+};
