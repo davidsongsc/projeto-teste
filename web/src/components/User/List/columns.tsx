@@ -1,56 +1,71 @@
 import { ColumnsType } from 'antd/es/table';
+import { Tag } from 'antd';
 import { User } from '@/src/interfaces/user';
-import { Tag, Space } from 'antd';
-import { DeleteButton } from '@/src/components/Buttons/DeleteButton';
-import { EditUser } from '../Edit'; // Assumindo que você criará este componente
 import { UserActions } from '../Actions';
 
 export const getUserColumns = (
     onDelete: (id: string) => Promise<void>,
     onEdit: (id: string) => void
 ): ColumnsType<User> => [
-        /*{
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (id) => id.slice(0, 8) + '...',
-        },*/
         {
             title: 'Nome',
             dataIndex: 'name',
             key: 'name',
-            minWidth: 200,
-            
+            minWidth: 180,
         },
         {
             title: 'E-mail',
             dataIndex: 'email',
             key: 'email',
-            minWidth: 100,
+            minWidth: 220,
+        },
+        {
+            title: 'Perfil',
+            key: 'profile',
+            minWidth: 160,
+            render: (_, record) => record.profile?.name ?? '-',
+        },
+        {
+            title: 'Função',
+            key: 'role',
+            width: 140,
+            render: (_, record) => {
+                const role = record.profile?.role;
+
+                const config = {
+                    ADMIN: { color: 'red', text: 'Administrador' },
+                    OPERATOR: { color: 'blue', text: 'Operador' },
+                }[role as 'ADMIN' | 'OPERATOR'];
+
+                if (!config) return '-';
+
+                return (
+                    <Tag color={config.color}>
+                        {config.text}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            render: (status) => {
-                const isActive = status === true;
-                return (
-                    <Tag color={isActive ? 'green' : 'red'}>
-                        {isActive ? 'ATIVO' : 'INATIVO'}
-                    </Tag>
-                );
-            },
-            width: 100,
+            width: 110,
+            render: (status) => (
+                <Tag color={status ? 'green' : 'red'}>
+                    {status ? 'ATIVO' : 'INATIVO'}
+                </Tag>
+            ),
         },
         {
             title: 'Ações',
             key: 'action',
+            width: 180,
             render: (_, record) => (
                 <UserActions
                     record={record}
                     onDelete={onDelete}
                 />
             ),
-            width: 200,
         },
     ];

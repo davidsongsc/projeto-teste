@@ -14,9 +14,12 @@ export const AuthModal = () => {
       footer={null}
       closable={false}
       centered
-      maskStyle={{
-        backdropFilter: 'blur(8px)',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      
+      styles={{
+        mask: {
+          backdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        },
       }}
     >
       <div className="p-2">

@@ -43,7 +43,7 @@ export const CreateCollaborator = () => {
             await createCollaborator(values);
             message.success('Colaborador criado com sucesso!');
             setIsModalVisible(false);
-        } catch {}
+        } catch { }
     };
 
     return (
@@ -62,7 +62,7 @@ export const CreateCollaborator = () => {
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden
             >
                 <CollaboratorForm
                     onSubmit={handleSubmit}

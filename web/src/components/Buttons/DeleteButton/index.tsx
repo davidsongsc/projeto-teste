@@ -1,8 +1,8 @@
 'use client';
 
-import { Button, Modal, message } from 'antd';
+import { Button, Modal } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-
+import { notification } from '@/src/components/Notification/notification';
 interface DeleteButtonProps {
   id: string;
   onConfirm: (id: string) => Promise<void>;
@@ -21,9 +21,9 @@ export const DeleteButton = ({ id, onConfirm }: DeleteButtonProps) => {
       onOk: async () => {
         try {
           await onConfirm(id);
-          message.success('Pedido excluído com sucesso!');
+          
         } catch (error) {
-          message.error('Erro ao excluir o pedido.');
+          notification.error('Erro ao excluir o pedido.');
         }
       },
     });

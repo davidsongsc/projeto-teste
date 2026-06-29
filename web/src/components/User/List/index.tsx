@@ -19,11 +19,7 @@ export const UserList = () => {
     const { users, isLoading, pagination, fetchUsers, deleteUser } = useUsers();
 
     useEffect(() => {
-        if (!isLoadingAuth) return;
-        if (!user) {
-
-            return;
-        }
+       
         fetchUsers({
             page: currentPage,
             limit: 10,
@@ -75,10 +71,7 @@ export const UserList = () => {
                 dataSource={users}
                 rowKey="id"
                 scroll={{ x: 900 }}
-                loading={{
-                    spinning: isLoading,
-                    tip: "Carregando usuários...",
-                }}
+                loading={isLoading}
                 locale={{
                     emptyText: isLoading ? ' ' : 'Nenhum usuário encontrado'
                 }}

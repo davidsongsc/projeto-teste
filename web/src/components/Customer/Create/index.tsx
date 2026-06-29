@@ -1,29 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { UserForm } from '../Form';
-import { useUsers } from '@/src/hooks/useUsers';
+import { CustomerForm } from '../Form'; 
+import { useCustomers } from '@/src/hooks/useCustomers';
 
-export const CreateUser = () => {
+export const CreateCustomer = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const { createUser, isLoading } = useUsers();
-    const [isMounted, setIsMounted] = useState(false); // Adicione esse estado
+    const { createCustomer, isLoading } = useCustomers();
+
     const handleSubmit = async (values: any) => {
         try {
-            await createUser(values);
-            message.success('Usuário criado com sucesso!');
+            await createCustomer(values);
+            message.success('Cliente cadastrado com sucesso!');
             setIsModalVisible(false);
         } catch (error) {
+            // O tratamento de erro geralmente fica no hook ou é capturado aqui
+            message.error('Erro ao cadastrar cliente.');
         }
     };
-    
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
 
-    if (!isMounted) return null;
     return (
         <>
             <Button
@@ -31,17 +28,17 @@ export const CreateUser = () => {
                 icon={<PlusOutlined />}
                 onClick={() => setIsModalVisible(true)}
             >
-                Novo Usuário
+                Novo Cliente
             </Button>
 
             <Modal
-                title="Criar Novo Usuário"
+                title="Cadastrar Novo Cliente"
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
                 destroyOnClose
             >
-                <UserForm
+                <CustomerForm
                     onSubmit={handleSubmit}
                     loading={isLoading}
                 />

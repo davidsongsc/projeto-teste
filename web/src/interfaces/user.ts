@@ -6,6 +6,14 @@ export interface User {
     name: string;
     email: string;
     status: boolean;
+    profileId: string;
+    profile: {
+        id: string;
+        name: string;
+        role: string;
+        description: string;
+        status: boolean;
+    }
     created_at: string;
     updated_at: string;
 };

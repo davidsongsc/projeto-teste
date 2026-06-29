@@ -17,6 +17,7 @@ import {
     AppstoreOutlined,
     SettingOutlined,
     RightOutlined,
+    ProfileOutlined,
 } from '@ant-design/icons';
 
 import { useRouter } from 'next/navigation';
@@ -36,23 +37,24 @@ export default function DashboardPage() {
             path: '/orders',
         },
         {
-            title: 'Colaboradores',
-            description: 'Gerencie colaboradores do sistema.',
+            title: 'Clientes',
+            description: 'Cadastre e organize clientes.',
             icon: <TeamOutlined style={{ fontSize: 36 }} />,
-            path: '/collaborators',
+            path: '/customers',
         },
-        {
+       /* {
             title: 'Produtos',
             description: 'Cadastre e organize produtos.',
             icon: <AppstoreOutlined style={{ fontSize: 36 }} />,
             path: '/products',
-        },
+        },*/
         {
             title: 'Usuários',
             description: 'Controle acessos e autenticação.',
             icon: <UserOutlined style={{ fontSize: 36 }} />,
             path: '/users',
         },
+       
         {
             title: 'Configurações',
             description: 'Preferências do sistema.',
