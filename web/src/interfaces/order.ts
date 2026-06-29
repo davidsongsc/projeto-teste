@@ -1,3 +1,4 @@
+import { Customer } from "./customer";
 import { Filters } from "./filters";
 import { ListResponse } from "./listResponse";
 
@@ -26,7 +27,7 @@ export interface Order {
   status: OrderStatus;
   created_at: string;
   updated_at: string;
-
+  customer?: Customer;
   user?: OrderUser;
   items?: OrderItem[];
 }

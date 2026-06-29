@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Layout, Button, Menu, Typography, Flex, theme, Avatar, Dropdown } from 'antd';
 import { LoginOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -11,9 +12,19 @@ const { Title, Text } = Typography;
 export default function Header() {
     const router = useRouter();
     const { token } = theme.useToken();
-    
+    const [mounted, setMounted] = useState(false);
+
+
     // Acessa o estado de autenticação
     const { user, logout, setLoginModalOpen } = useAuthStore();
+
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
 
     return (
         <AntHeader

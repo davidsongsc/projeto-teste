@@ -41,6 +41,14 @@ export const getOrderColumns = (
             ),
         },
         {
+            title: 'Cliente',
+            dataIndex: ['customer', 'name'],
+            key: 'customerName',
+            sorter: (a, b) =>
+                (a.customer?.name ?? '').localeCompare(b.customer?.name ?? ''),
+            minWidth: 180,
+        },
+        {
             title: 'Vendedor',
             dataIndex: ['user', 'name'],
             key: 'userName',

@@ -77,7 +77,11 @@ export const OrderList = () => {
                 dataSource={orders}
                 rowKey="id"
                 scroll={{ x: 900 }}
-                loading={{ spinning: isLoading, tip: "Carregando pedidos..." }}
+                loading={{
+                    spinning: isLoading,
+                    tip: "Carregando..."
+                }}
+
                 pagination={{
                     current: pagination.page,
                     pageSize: 10,
