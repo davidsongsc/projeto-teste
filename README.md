@@ -206,3 +206,8 @@ No geral, ela entra mais como um acelerador de produtividade do que como substit
 
 - Aproximadamente 16 horas.
 
+
+
+### Imagens
+
+<img width="1887" height="511" alt="usuariosDesktopNotautorized" src="https://github.com/user-attachments/assets/02c0c6c0-efe1-463d-b73d-22eb137b5549" />
