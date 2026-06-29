@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
-export class CustomerService {
+export class CollaboratorService {
   async findAll(params?: {
     page?: number
     limit?: number
@@ -12,7 +12,7 @@ export class CustomerService {
     const limit = Number(params?.limit || 10)
     const skip = (page - 1) * limit
 
-    const where: Prisma.CustomerWhereInput = {}
+    const where: Prisma.CollaboratorWhereInput = {}
 
     if (params?.status !== undefined) {
       where.status = params.status
@@ -46,8 +46,8 @@ export class CustomerService {
     }
 
     const [totalItems, results] = await Promise.all([
-      prisma.customer.count({ where }),
-      prisma.customer.findMany({
+      prisma.collaborator.count({ where }),
+      prisma.collaborator.findMany({
         where,
         skip,
         take: limit,
@@ -82,7 +82,7 @@ export class CustomerService {
   }
 
   async findById(id: string) {
-    return prisma.customer.findUnique({
+    return prisma.collaborator.findUnique({
       where: { id },
       include: {
         profile: {
@@ -108,13 +108,13 @@ export class CustomerService {
     profileId: string
     userId: string
   }) {
-    return prisma.customer.create({
+    return prisma.collaborator.create({
       data
     })
   }
   
   async updateStatus(id: string, status: boolean) {
-    return prisma.customer.update({
+    return prisma.collaborator.update({
       where: {
         id
       },
@@ -133,14 +133,14 @@ export class CustomerService {
       status?: boolean
     }
   ) {
-    return prisma.customer.update({
+    return prisma.collaborator.update({
       where: { id },
       data
     })
   }
 
   async delete(id: string) {
-    return prisma.customer.delete({
+    return prisma.collaborator.delete({
       where: { id }
     })
   }

@@ -1,16 +1,16 @@
 import { Router } from 'express'
-import { CustomerController } from '@/controllers/customer.controller'
+import { CollaboratorController } from '@/controllers/collaborator.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
 const router = Router()
-const controller = new CustomerController()
+const controller = new CollaboratorController()
 
 /**
  * @openapi
- * /customers:
+ * /collaborators:
  *   get:
  *     tags:
- *       - Customers
- *     summary: Lista clientes
+ *       - Collaborators
+ *     summary: Lista colaboradores
  *     parameters:
  *       - in: query
  *         name: page
@@ -26,17 +26,17 @@ const controller = new CustomerController()
  *           type: string
  *     responses:
  *       '200':
- *         description: Lista de clientes
+ *         description: Lista de colaboradores
  */
-router.get('/', cacheMiddleware('customers', 60), controller.index)
+router.get('/', cacheMiddleware('collaborators', 60), controller.index)
 
 /**
  * @openapi
- * /customers/{id}:
+ * /collaborators/{id}:
  *   get:
  *     tags:
- *       - Customers
- *     summary: Busca cliente por ID
+ *       - Collaborators
+ *     summary: Busca colaborador por ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -45,19 +45,19 @@ router.get('/', cacheMiddleware('customers', 60), controller.index)
  *           type: string
  *     responses:
  *       '200':
- *         description: Cliente encontrado
+ *         description: Colaborador encontrado
  *       '404':
- *         description: Cliente não encontrado
+ *         description: Colaborador não encontrado
  */
-router.get('/:id', cacheMiddleware('customers', 60), controller.show)
+router.get('/:id', cacheMiddleware('collaborators', 60), controller.show)
 
 /**
  * @openapi
- * /api/customers:
+ * /api/collaborators:
  *   post:
  *     tags:
- *       - Customers
- *     summary: Cria um cliente
+ *       - Collaborators
+ *     summary: Cria um colaborador
  *     requestBody:
  *       required: true
  *       content:
@@ -77,17 +77,17 @@ router.get('/:id', cacheMiddleware('customers', 60), controller.show)
  *                 type: string
  *     responses:
  *       '201':
- *         description: Cliente criado
+ *         description: Colaborador criado
  */
 router.post('/', controller.store)
 
 /**
  * @openapi
- * /customers/{id}/status:
+ * /collaborators/{id}/status:
  *   patch:
  *     tags:
- *       - Customers
- *     summary: Atualiza o status do cliente
+ *       - Collaborators
+ *     summary: Atualiza o status do colaborador
  *     parameters:
  *       - in: path
  *         name: id
@@ -113,11 +113,11 @@ router.patch('/:id/status', controller.updateStatus)
 
 /**
  * @openapi
- * /customers/{id}:
+ * /collaborators/{id}:
  *   put:
  *     tags:
- *       - Customers
- *     summary: Atualiza um cliente
+ *       - Collaborators
+ *     summary: Atualiza um colaborador
  *     parameters:
  *       - in: path
  *         name: id
@@ -140,17 +140,17 @@ router.patch('/:id/status', controller.updateStatus)
  *                 type: boolean
  *     responses:
  *       '200':
- *         description: Cliente atualizado
+ *         description: Colaborador atualizado
  */
 router.put('/:id', controller.update)
 
 /**
  * @openapi
- * /customers/{id}:
+ * /collaborators/{id}:
  *   delete:
  *     tags:
- *       - Customers
- *     summary: Remove um cliente
+ *       - Collaborators
+ *     summary: Remove um colaborador
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,7 +159,7 @@ router.put('/:id', controller.update)
  *           type: string
  *     responses:
  *       '204':
- *         description: Cliente removido
+ *         description: Colaborador removido
  */
 router.delete('/:id', controller.delete)
 

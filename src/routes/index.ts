@@ -4,7 +4,7 @@ import { ensureAuthenticated } from '@/middlewares/auth'
 import authRoutes from './auth.routes'
 import userRoutes from './user.routes'
 import profileRoutes from './profile.routes'
-import customerRoutes from './customer.routes'
+import collaboratorRoutes from './collaborator.routes'
 import orderRoutes from './order.routes'
 import productRoutes from './product.routes'
 import itemRoutes from './item.routes'
@@ -22,7 +22,7 @@ router.use(ensureAuthenticated)
 // Rotas de autenticação Privadas
 router.use('/users', userRoutes)
 router.use('/profiles', profileRoutes)
-router.use('/customers', customerRoutes)
+router.use('/collaborators', collaboratorRoutes)
 router.use('/orders', orderRoutes)
 router.use('/products', productRoutes)
 router.use('/items', itemRoutes)
