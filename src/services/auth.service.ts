@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { compare } from 'bcryptjs'; 
+import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
@@ -16,7 +16,13 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { profile: true }
+      include: {
+        profile: {
+          include: {
+            permissions: true
+          }
+        }
+      }
     });
 
     // 1. Validar se o usuário existe
@@ -27,11 +33,7 @@ export class AuthService {
     // 2. Comparar a senha do body com o HASH salvo no banco
     const passwordMatch = await compare(password, user.password);
 
-    console.log('passwordMatch', passwordMatch);
-    console.log('password', password);
-    console.log('user.password', user.password);
-
-    if (!passwordMatch) {
+   if (!passwordMatch) {
       throw new AppError('Usuário ou senha incorretos.', 401);
     }
 
@@ -51,7 +53,10 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-        profile: user.profile
+        profile: {
+          ...user.profile,
+          permissions: user.profile?.permissions 
+        }
       }
     };
   }

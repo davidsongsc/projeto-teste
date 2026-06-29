@@ -82,6 +82,7 @@ export class OrderService {
             select: {
               id: true,
               name: true,
+
             }
           },
           items: true
@@ -112,6 +113,9 @@ export class OrderService {
           select: {
             id: true,
             name: true,
+            email: true,
+            document: true,
+            status: true
           }
         },
         items: true
@@ -120,10 +124,17 @@ export class OrderService {
   }
 
   async create(data: CreateOrderDTO) {
+    // 1. Validação de Itens
     if (!data.items || data.items.length === 0) {
       throw new AppError('Não é possível criar um pedido sem itens.');
     }
 
+    // 2. Validação de Valor Total (não pode ser 0 ou negativo)
+    if (Number(data.totalPrice) <= 0) {
+      throw new AppError('O valor total do pedido deve ser maior que zero.');
+    }
+
+    // 3. Validação de Usuário (mantendo sua lógica atual)
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
       select: { status: true }
@@ -133,6 +144,21 @@ export class OrderService {
       throw new AppError('Não é possível criar um pedido para um usuário inativo.');
     }
 
+    // 4. Nova Validação: Status do Cliente
+    const customer = await prisma.customer.findUnique({
+      where: { id: data.customerId },
+      select: { status: true }
+    });
+
+    if (!customer) {
+      throw new AppError('Cliente não encontrado.');
+    }
+
+    if (customer.status !== true) {
+      throw new AppError('Não é possível criar um pedido para um cliente inativo.');
+    }
+
+    // 5. Persistência
     return prisma.order.create({
       data: {
         userId: data.userId,
@@ -141,11 +167,7 @@ export class OrderService {
         status: data.status,
         items: {
           create: data.items.map(item => ({
-            product: {
-              connect: {
-                id: item.productId,
-              },
-            },
+            product: { connect: { id: item.productId } },
             price: item.price,
             count: item.count,
             description: item.description,
