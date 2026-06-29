@@ -210,4 +210,12 @@ No geral, ela entra mais como um acelerador de produtividade do que como substit
 
 ### Imagens
 
-<img width="1887" height="511" alt="usuariosDesktopNotautorized" src="https://github.com/user-attachments/assets/02c0c6c0-efe1-463d-b73d-22eb137b5549" />
+<img width="1849" height="877" alt="usuariosDesktop" src="https://github.com/user-attachments/assets/9b89bd4a-813f-4066-9936-6dc30f5f142d" />
+<img width="1887" height="511" alt="usuariosDesktopNotautorized" src="https://github.com/user-attachments/assets/ee5f0228-58da-4dd6-925f-cf7fba01dcaf" />
+<img width="1872" height="710" alt="notautorized" src="https://github.com/user-attachments/assets/b251eacf-aaae-4731-959c-7a0c7b8a4399" />
+<img width="1871" height="861" alt="clientesDesktop2" src="https://github.com/user-attachments/assets/f6a0fe42-72f4-42a7-92ff-78ad9101f6a2" />
+<img width="1893" height="907" alt="clientesDesktop" src="https://github.com/user-attachments/assets/4a52ba4e-9991-493a-8d4a-eb466fbeea31" />
+<img width="382" height="851" alt="homeMobile" src="https://github.com/user-attachments/assets/e8eaaeff-27d6-4649-9e09-6a67405a340a" />
+<img width="1901" height="1075" alt="homeDesktop" src="https://github.com/user-attachments/assets/04e3fe68-80e9-4116-8fdc-de8b1880c427" />
+<img width="1867" height="691" alt="login" src="https://github.com/user-attachments/assets/ce16e685-affe-42d6-9661-8eec85173481" />
+
