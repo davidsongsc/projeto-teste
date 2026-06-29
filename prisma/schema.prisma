@@ -36,7 +36,7 @@ model Profile {
   permissions Permission[]
 }
 
-model Customer {
+model Collaborator {
   id        String  @id @default(uuid())
   name      String
   status    Boolean @default(true)
