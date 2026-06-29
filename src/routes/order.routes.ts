@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import { OrderController } from '@/controllers/order.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
-
+import { checkPermission } from '@/middlewares/checkPermissionMiddleware'
+import { ensureAuthenticated } from '@/middlewares/auth'
 const router = Router()
 const controller = new OrderController()
 
@@ -33,7 +34,12 @@ const controller = new OrderController()
  *       '200':
  *         description: Lista de pedidos
  */
-router.get('/', cacheMiddleware('orders', 60), controller.index)
+router.get(
+    '/',
+    ensureAuthenticated,
+    checkPermission('order:read'),
+    cacheMiddleware('orders', 60),
+    controller.index)
 
 /**
  * @openapi
@@ -54,7 +60,12 @@ router.get('/', cacheMiddleware('orders', 60), controller.index)
  *       '404':
  *         description: Pedido não encontrado
  */
-router.get('/:id', cacheMiddleware('orders', 60), controller.show)
+router.get(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('order:read'),
+    cacheMiddleware('orders', 60),
+    controller.show)
 
 /**
  * @openapi
@@ -89,7 +100,11 @@ router.get('/:id', cacheMiddleware('orders', 60), controller.show)
  *       '201':
  *         description: Pedido criado
  */
-router.post('/', controller.store)
+router.post(
+    '/',
+    ensureAuthenticated,
+    checkPermission('order:create'),
+    controller.store)
 
 /**
  * @openapi
@@ -127,7 +142,11 @@ router.post('/', controller.store)
  *       '404':
  *         description: Pedido não encontrado
  */
-router.put('/:id', controller.update)
+router.put(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('order:update'),
+    controller.update)
 
 /**
  * @openapi
@@ -148,6 +167,10 @@ router.put('/:id', controller.update)
  *       '404':
  *         description: Pedido não encontrado
  */
-router.delete('/:id', controller.delete)
+router.delete(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('order:delete'),
+    controller.delete)
 
 export default router

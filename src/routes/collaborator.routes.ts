@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { CollaboratorController } from '@/controllers/collaborator.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
+import { checkPermission } from '@/middlewares/checkPermissionMiddleware'
+import { ensureAuthenticated } from '@/middlewares/auth'
 const router = Router()
 const controller = new CollaboratorController()
 
@@ -28,7 +30,12 @@ const controller = new CollaboratorController()
  *       '200':
  *         description: Lista de colaboradores
  */
-router.get('/', cacheMiddleware('collaborators', 60), controller.index)
+router.get(
+    '/',
+    ensureAuthenticated,
+    checkPermission('collaborator:read'),
+    cacheMiddleware('collaborators', 60),
+    controller.index)
 
 /**
  * @openapi
@@ -49,7 +56,12 @@ router.get('/', cacheMiddleware('collaborators', 60), controller.index)
  *       '404':
  *         description: Colaborador não encontrado
  */
-router.get('/:id', cacheMiddleware('collaborators', 60), controller.show)
+router.get(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('collaborator:read'),
+    cacheMiddleware('collaborators', 60),
+    controller.show)
 
 /**
  * @openapi
@@ -79,7 +91,11 @@ router.get('/:id', cacheMiddleware('collaborators', 60), controller.show)
  *       '201':
  *         description: Colaborador criado
  */
-router.post('/', controller.store)
+router.post(
+    '/',
+    ensureAuthenticated,
+    checkPermission('collaborator:create'),
+    controller.store)
 
 /**
  * @openapi
@@ -109,7 +125,11 @@ router.post('/', controller.store)
  *       '200':
  *         description: Status atualizado
  */
-router.patch('/:id/status', controller.updateStatus)
+router.patch(
+    '/:id/status',
+    ensureAuthenticated,
+    checkPermission('collaborator:update'),
+    controller.updateStatus)
 
 /**
  * @openapi
@@ -142,7 +162,11 @@ router.patch('/:id/status', controller.updateStatus)
  *       '200':
  *         description: Colaborador atualizado
  */
-router.put('/:id', controller.update)
+router.put(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('collaborator:update'),
+    controller.update)
 
 /**
  * @openapi
@@ -161,6 +185,10 @@ router.put('/:id', controller.update)
  *       '204':
  *         description: Colaborador removido
  */
-router.delete('/:id', controller.delete)
+router.delete(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('collaborator:delete'),
+    controller.delete)
 
 export default router

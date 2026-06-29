@@ -1,12 +1,12 @@
-import { Request } from 'express';
-
-declare global {
-  namespace Express {
-    interface Request {
-      user: {
+declare namespace Express {
+  export interface Request {
+    user: {
+      data: {
         id: string;
-        role: string;
+        profile: {
+          permissions: Array<{ key: string }>;
+        };
       };
-    }
+    };
   }
 }

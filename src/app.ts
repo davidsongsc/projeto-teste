@@ -10,7 +10,11 @@ const app: Application = express()
 
 // 1. Middlewares de Segurança e Parsing
 app.use(helmet()) // Protege contra vulnerabilidades comuns de cabeçalhos HTTP
-app.use(cors())   // Gerencia o compartilhamento de recursos entre origens
+app.use(cors({
+  origin: '*', // Ou o domínio do seu front-end
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '10mb' })) // Limita o tamanho do body para evitar DoS
 
 // 2. Documentação

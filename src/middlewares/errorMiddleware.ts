@@ -20,4 +20,7 @@ export const errorMiddleware = (
     success: false,
     message: 'Erro interno no servidor. Tente novamente mais tarde.',
   });
+
+  
 };
+

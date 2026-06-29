@@ -10,14 +10,12 @@ export class ItemController {
       const limit = req.query.limit as string
       const search = req.query.search as string
       const orderId = req.query.orderId as string
-      const productId = req.query.productId as string
 
       const result = await itemService.findAll({
         page: page ? Number(page) : undefined,
         limit: limit ? Number(limit) : undefined,
         search,
-        orderId,
-        productId
+        orderId
       })
 
       return res.status(200).json(result)
@@ -57,13 +55,22 @@ export class ItemController {
 
   async store(req: Request, res: Response) {
     try {
-      const { orderId, productId, price, count } = req.body
+      const {
+        orderId,
+        name,
+        price,
+        total,
+        count,
+        description
+      } = req.body
 
       const item = await itemService.create({
         orderId,
-        productId,
+        name,
         price: Number(price),
-        count: Number(count)
+        total: Number(total),
+        count: Number(count),
+        description
       })
 
       return res.status(201).json(item)
@@ -86,9 +93,11 @@ export class ItemController {
 
       const item = await itemService.update(id, {
         orderId: data.orderId,
-        productId: data.productId,
-        price: data.price ? Number(data.price) : undefined,
-        count: data.count ? Number(data.count) : undefined
+        name: data.name,
+        price: data.price !== undefined ? Number(data.price) : undefined,
+        total: data.total !== undefined ? Number(data.total) : undefined,
+        count: data.count !== undefined ? Number(data.count) : undefined,
+        description: data.description
       })
 
       return res.status(200).json(item)
