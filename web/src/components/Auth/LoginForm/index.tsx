@@ -1,41 +1,34 @@
-// src/components/Auth/LoginForm.tsx
-import { Form, Input, Button, message, Card } from 'antd';
-import { useAuthStore } from '@/src/store/useAuthStore';
-import { api } from '@/src/services/api'; 
+'use client';
 
-export const LoginForm = () => {
-  const login = useAuthStore((state) => state.login);
+import { Form, Input, Button } from 'antd';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useState } from 'react';
+
+export const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const onFinish = async (values: any) => {
-    try {
-      // Chamada direta para não depender de um service apenas para o auth
-      const response = await fetch('http://localhost:3333/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) throw new Error('Credenciais inválidas');
-      
-      const data = await response.json();
-      login(data);
-      message.success('Bem-vindo de volta!');
-    } catch (error) {
-      message.error('Erro ao realizar login.');
-    }
+    setLoading(true);
+    const success = await login(values);
+    setLoading(false);
+    if (success && onSuccess) onSuccess();
   };
 
   return (
-    <Card title="Login - Freela Fácil" style={{ width: 300, margin: '100px auto' }}>
-      <Form onFinish={onFinish} layout="vertical">
-        <Form.Item name="email" label="Email" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="password" label="Senha" rules={[{ required: true }]}>
-          <Input.Password />
-        </Form.Item>
-        <Button type="primary" htmlType="submit" block>Entrar</Button>
-      </Form>
-    </Card>
+    <Form layout="vertical" onFinish={onFinish}>
+      <Form.Item name="email" rules={[{ required: true, type: 'email' }]}>
+        <Input prefix={<UserOutlined />} placeholder="E-mail" size="large" />
+      </Form.Item>
+
+      <Form.Item name="password" rules={[{ required: true }]}>
+        <Input.Password prefix={<LockOutlined />} placeholder="Senha" size="large" />
+      </Form.Item>
+
+      <Button type="primary" htmlType="submit" loading={loading} block size="large">
+        Entrar
+      </Button>
+    </Form>
   );
 };
