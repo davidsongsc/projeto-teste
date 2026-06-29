@@ -7,6 +7,7 @@ export class UserService {
     limit?: number
     search?: string
     status?: boolean
+    onlyWithProfile?: boolean // Adicionado parâmetro de filtro
   }) {
     const page = Number(params?.page || 1)
     const limit = Number(params?.limit || 10)
@@ -14,10 +15,19 @@ export class UserService {
 
     const where: Prisma.UserWhereInput = {}
 
+    // Filtro de status
     if (params?.status !== undefined) {
       where.status = params.status
     }
 
+    // Filtro de usuários apenas com profile
+    if (params?.onlyWithProfile) {
+      where.profile = {
+        isNot: null
+      }
+    }
+
+    // Filtro de busca (nome ou email)
     if (params?.search) {
       where.OR = [
         {
@@ -43,6 +53,9 @@ export class UserService {
         take: limit,
         orderBy: {
           created_at: 'desc'
+        },
+        include: {
+          profile: true // Inclui os dados do perfil na resposta
         }
       })
     ])
@@ -65,7 +78,7 @@ export class UserService {
         name: true,
         email: true,
         status: true,
-        profile: { 
+        profile: {
           select: {
             name: true,
             role: true
@@ -76,7 +89,7 @@ export class UserService {
       }
     })
   }
-  
+
   async create(data: {
     name: string
     email: string

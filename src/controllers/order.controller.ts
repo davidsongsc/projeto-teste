@@ -46,7 +46,7 @@ export class OrderController {
       
       const order = await service.create({
         userId,
-        totalPrice: Number(totalPrice), // Garantindo tipo numérico
+        totalPrice: Number(totalPrice),
         status
       })
 
