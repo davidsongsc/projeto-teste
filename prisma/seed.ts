@@ -59,22 +59,36 @@ async function main() {
     ]
   });
 
-  // 5. Criar 10 Customers (Usuários comuns, sem profileId)
+  // 5. Criar 10 Colaboradores
   const nomesAleatorios = ['Alice', 'Bruno', 'Carla', 'Diego', 'Elena', 'Fabio', 'Gabi', 'Hugo', 'Iara', 'Joao'];
 
+  const collaboratorProfile = await prisma.profile.create({
+    data: { name: 'Colaborador', role: 'COLLABORATOR' }
+  });
+
   for (let i = 0; i < 10; i++) {
-    await prisma.user.create({
+    // Cria o usuário
+    const user = await prisma.user.create({
       data: {
         name: nomesAleatorios[i],
         email: `cliente${i}@loja.com`,
         password: 'senha123',
-        profileId: null // Usuário comum (Customer)
+        profileId: collaboratorProfile.id
+      }
+    });
+
+    // Cria o registro na tabela Collaborator conforme seu novo modelo
+    await prisma.collaborator.create({
+      data: {
+        name: nomesAleatorios[i],
+        userId: user.id,
+        profileId: collaboratorProfile.id
       }
     });
   }
 
   console.log('--- Seed finalizado com sucesso! ---');
-  console.log('Total: 2 usuários privilegiados + 10 clientes.');
+  console.log('Total: 2 usuários privilegiados + 10 colaboradores.');
 }
 
 main()
