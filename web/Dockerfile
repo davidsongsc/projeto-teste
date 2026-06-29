@@ -1,16 +1,15 @@
-# Dockerfile
 FROM node:20-slim
 
-RUN npm install -g pnpm
+ENV NODE_ENV=development
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
-RUN pnpm install
+RUN npm ci
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev"]
+CMD ["npm", "run", "dev"]
