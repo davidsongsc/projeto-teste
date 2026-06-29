@@ -1,14 +1,12 @@
 'use client';
 
 import { Form, Input, Button, Select, InputNumber, Card, List, Typography, Badge, Space } from 'antd';
-import { useEffect } from 'react';
 
 const { Text, Title } = Typography;
 
-// Tipagem baseada na sua estrutura de dados
 interface OrderItem {
   id: string;
-  productId: string;
+  name: string;
   price: string;
   total: string;
   count: number;
@@ -17,6 +15,7 @@ interface OrderItem {
 interface Order {
   id: string;
   userId: string;
+  customerId: string;
   totalPrice: string;
   status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
   user: { name: string; email: string };
@@ -32,28 +31,30 @@ interface OrderFormProps {
 export const OrderForm = ({ initialValues, loading, onSubmit }: OrderFormProps) => {
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    if (initialValues) form.setFieldsValue(initialValues);
-  }, [initialValues, form]);
-
-  const formatCurrency = (val: string) => 
+  const formatCurrency = (val: string | number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val));
 
   return (
     <Card className="shadow-sm">
       <Title level={4}>Resumo do Pedido</Title>
-      <Form form={form} layout="vertical" onFinish={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <Form.Item name="userId" label="ID do Usuário">
-          <Input disabled className="bg-gray-50" />
-        </Form.Item>
+      
+      <Form 
+        form={form} 
+        layout="vertical" 
+        onFinish={onSubmit} 
+        initialValues={{
+          ...initialValues,
+          totalPrice: initialValues ? Number(initialValues.totalPrice) : 0
+        }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        {/* Campos ocultos para manter IDs no submit */}
+        <Form.Item name="id" hidden><Input /></Form.Item>
+        <Form.Item name="customerId" hidden><Input /></Form.Item>
+        <Form.Item name="userId" hidden><Input /></Form.Item>
 
         <Form.Item label="Responsável">
           <Input value={initialValues?.user?.name || '-'} disabled className="bg-gray-50" />
-        </Form.Item>
-
-        <Form.Item name="totalPrice" label="Valor Total" rules={[{ required: true }]}>
-          <InputNumber prefix="R$" className="w-full" step={0.01} precision={2} />
         </Form.Item>
 
         <Form.Item name="status" label="Status" rules={[{ required: true }]}>
@@ -62,6 +63,15 @@ export const OrderForm = ({ initialValues, loading, onSubmit }: OrderFormProps) 
             <Select.Option value="CONFIRMED"><Badge status="success" text="Confirmado" /></Select.Option>
             <Select.Option value="CANCELLED"><Badge status="error" text="Cancelado" /></Select.Option>
           </Select>
+        </Form.Item>
+
+        <Form.Item name="totalPrice" label="Valor Total" rules={[{ required: true }]}>
+          <InputNumber 
+            prefix="R$" 
+            className="w-full" 
+            step={0.01} 
+            precision={2} 
+          />
         </Form.Item>
 
         <div className="md:col-span-2">
@@ -73,8 +83,8 @@ export const OrderForm = ({ initialValues, loading, onSubmit }: OrderFormProps) 
               <List.Item className="px-4 hover:bg-gray-50">
                 <div className="flex justify-between w-full">
                   <Space direction="vertical" size={0}>
-                    <Text strong>ID Produto: {item.productId.slice(-8)}</Text>
-                    <Text type="secondary">Quantidade: {item.count}</Text>
+                    <Text strong>{item.name}</Text>
+                    <Text type="secondary">Qtd: {item.count} | Un: {formatCurrency(item.price)}</Text>
                   </Space>
                   <Text strong className="text-blue-600">{formatCurrency(item.total)}</Text>
                 </div>

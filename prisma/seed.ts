@@ -77,8 +77,6 @@ async function main() {
     }
   });
 
-  const prods = await prisma.product.findMany();
-
   const customers = [];
   for (let i = 1; i <= 5; i++) {
     const customer = await prisma.customer.create({

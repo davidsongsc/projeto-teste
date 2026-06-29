@@ -11,15 +11,15 @@ import { UnauthorizedAccess } from '../../Auth/UnauthorizedAccess';
 export const UserList = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState<boolean | undefined>(undefined);
+     const [currentPage, setCurrentPage] = useState(1);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
     const { user, isLoadingAuth } = useAuthStore();
     const { users, isLoading, pagination, fetchUsers, deleteUser } = useUsers();
 
     useEffect(() => {
-       
+
         fetchUsers({
             page: currentPage,
             limit: 10,
@@ -27,18 +27,19 @@ export const UserList = () => {
             status: statusFilter
         });
     }, [currentPage, debouncedSearch, statusFilter, user, isLoadingAuth]);
-    const handleEdit = (id: string) => {
+    const handleEdit = async (id: string): Promise<void> => {
         router.push(`/users/edit/${id}`);
     };
-    const handleDelete = (id: string) => {
-        deleteUser(id);
+
+    const handleDelete = async (id: string): Promise<void> => {
+        await deleteUser(id);
     };
     // Reseta página para 1 quando o filtro muda
     useEffect(() => {
         setCurrentPage(1);
     }, [debouncedSearch, statusFilter]);
 
-    if (!user || !isLoadingAuth) return < UnauthorizedAccess />;
+    if (!user) return < UnauthorizedAccess />;
 
     return (
         <Card

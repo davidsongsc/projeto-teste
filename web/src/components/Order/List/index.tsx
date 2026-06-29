@@ -3,23 +3,25 @@
 import { useEffect, useState } from 'react';
 import { Table, Card, Input, Select, Space } from 'antd';
 import { useOrders } from '@/src/hooks/useOrders';
-import { useAuthStore } from '@/src/store/useAuthStore'; 
+import { useAuthStore } from '@/src/store/useAuthStore';
 import { useDebounce } from '@/src/hooks/useDebounce';
 import { UnauthorizedAccess } from '@/src/components/Auth/UnauthorizedAccess';
 import { getOrderColumns } from './columns';
 import { useRouter } from 'next/navigation';
 import { CreateOrder } from '../Create';
+import { CreateOrderModal } from '../Modal/CreateOrder';
 
 export const OrderList = () => {
     const router = useRouter();
-    const { user, isLoadingAuth } = useAuthStore(); 
-    
+    const { user, isLoadingAuth } = useAuthStore();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
     const { orders, isLoading, pagination, fetchOrders, deleteOrder } = useOrders();
+
 
     useEffect(() => {
         if (!user) return;
@@ -28,7 +30,7 @@ export const OrderList = () => {
             page: currentPage,
             limit: 10,
             search: debouncedSearch,
-            status: statusFilter
+            status: statusFilter as any
         });
     }, [currentPage, debouncedSearch, statusFilter, user, isLoadingAuth]);
 
@@ -41,9 +43,11 @@ export const OrderList = () => {
     }, [debouncedSearch, statusFilter]);
 
 
-    if (!user || !isLoadingAuth) return <UnauthorizedAccess />;
+    if (!user) return <UnauthorizedAccess />;
 
-    return (
+    return (<>
+
+
         <Card
             title="Listagem de Pedidos"
             extra={
@@ -82,6 +86,9 @@ export const OrderList = () => {
                     showTotal: (total, range) => `Mostrando ${range[0]}-${range[1]} de ${total} pedidos`,
                 }}
             />
+
+
         </Card>
+    </>
     );
 };

@@ -1,8 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
+import path from 'path'
 
 export default defineConfig({
-  test: {
-    globals: true, // Permite usar 'expect' sem importar em todo arquivo
-    environment: 'node', // Como é backend, ambiente node
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
   },
-});
+  test: {
+    environment: 'node'
+  }
+})

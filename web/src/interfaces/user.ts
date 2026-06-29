@@ -37,3 +37,4 @@ export interface UpdateUserDTO {
     password?: string;
     status?: boolean;
 };
+

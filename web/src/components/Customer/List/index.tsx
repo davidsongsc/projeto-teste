@@ -9,6 +9,7 @@ import { CreateCustomer } from '../Create';
 
 import { useAuthStore } from '@/src/store/useAuthStore';
 import { UnauthorizedAccess } from '@/src/components/Auth/UnauthorizedAccess';
+import { CreateOrderModal } from '../../Order/Modal/CreateOrder';
 
 export const CustomerList = () => {
     const router = useRouter();
@@ -18,7 +19,12 @@ export const CustomerList = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+    const handleOpenCreate = (customerId: string) => {
+        setSelectedCustomerId(customerId);
+        setIsModalOpen(true);
+    };
     const { user, isLoadingAuth } = useAuthStore();
     const {
         customers,
@@ -29,7 +35,6 @@ export const CustomerList = () => {
     } = useCustomers();
 
     useEffect(() => {
-        if (!isLoadingAuth) return;
 
         if (!user) {
             return;
@@ -46,75 +51,87 @@ export const CustomerList = () => {
         debouncedSearch,
         statusFilter,
         user,
-        isLoadingAuth,
     ]);
 
     useEffect(() => {
         setCurrentPage(1);
     }, [debouncedSearch, statusFilter]);
 
+    const handleOrderSubmit = async (values: any) => {
+
+        setIsModalOpen(false);
+    };
+
     const handleEdit = (id: string) => {
         router.push(`/customers/edit/${id}`);
     };
 
-    const handleDelete = (id: string) => {
-        deleteCustomer(id);
+    const handleDelete = async (id: string): Promise<void> => {
+        await deleteCustomer(id);
     };
-
-    if (!user || !isLoadingAuth) {
+    if (!user) {
         return <UnauthorizedAccess />;
     }
 
     return (
-        <Card
-            title="Listagem de Clientes"
-            extra={
-                <Space size="middle">
-                    <CreateCustomer />
+        <>
+            <Card
+                title="Listagem de Clientes"
+                extra={
+                    <Space size="middle">
+                        <CreateCustomer />
 
-                    <Input
-                        placeholder="Buscar por nome ou e-mail..."
-                        allowClear
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                        <Input
+                            placeholder="Buscar por nome ou e-mail..."
+                            allowClear
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
 
-                    <Select
-                        placeholder="Status"
-                        allowClear
-                        style={{ width: 150 }}
-                        onChange={(value) => setStatusFilter(value)}
-                        options={[
-                            { value: true, label: 'Ativo' },
-                            { value: false, label: 'Inativo' },
-                        ]}
-                    />
-                </Space>
-            }
-        >
-            <Table
-                rowKey="id"
-                columns={getCustomerColumns(handleDelete, handleEdit)}
-                dataSource={customers}
-                scroll={{ x: 1000 }}
-                loading={{
-                    spinning: isLoading,
-                    tip: 'Carregando clientes...',
-                }}
-                locale={{
-                    emptyText: isLoading
-                        ? ' '
-                        : 'Nenhum cliente encontrado',
-                }}
-                pagination={{
-                    current: pagination.page,
-                    pageSize: 10,
-                    total: pagination.total_items,
-                    onChange: (page) => setCurrentPage(page),
-                    showSizeChanger: false,
-                    showTotal: (total, range) =>
-                        `Mostrando ${range[0]}-${range[1]} de ${total} clientes`,
-                }}
+                        <Select
+                            placeholder="Status"
+                            allowClear
+                            style={{ width: 150 }}
+                            onChange={(value) => setStatusFilter(value)}
+                            options={[
+                                { value: true, label: 'Ativo' },
+                                { value: false, label: 'Inativo' },
+                            ]}
+                        />
+                    </Space>
+                }
+            >
+                <Table
+                    rowKey="id"
+                    columns={getCustomerColumns(handleDelete, handleEdit, handleOpenCreate)}
+                    dataSource={customers}
+                    scroll={{ x: 1000 }}
+                    loading={{
+                        spinning: isLoading,
+                        tip: 'Carregando clientes...',
+                    }}
+                    locale={{
+                        emptyText: isLoading
+                            ? ' '
+                            : 'Nenhum cliente encontrado',
+                    }}
+                    pagination={{
+                        current: pagination.page,
+                        pageSize: 10,
+                        total: pagination.total_items,
+                        onChange: (page) => setCurrentPage(page),
+                        showSizeChanger: false,
+                        showTotal: (total, range) =>
+                            `Mostrando ${range[0]}-${range[1]} de ${total} clientes`,
+                    }}
+                />
+            </Card>
+            <CreateOrderModal
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                userId={selectedCustomerId}
+                onSubmit={handleOrderSubmit} // Pass the function reference
+                loading={isLoading}
             />
-        </Card>
+        </>
     );
 };

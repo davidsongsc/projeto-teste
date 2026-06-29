@@ -11,11 +11,18 @@ import { notification } from '@/src/components/Notification/notification';
 interface EditUserProps {
     id: string;
 }
+interface UserData {
+    id: string;
+    name: string;
+    email: string;
+    profileId?: string; // Opcional se for uma transformação
+    [key: string]: any; // Permite outras propriedades dinâmicas
+}
 
 export const EditUser = ({ id }: EditUserProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
     const { updateUser } = useUsers();
 
     const handleOpen = async () => {
