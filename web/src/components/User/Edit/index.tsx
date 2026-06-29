@@ -23,9 +23,16 @@ export const EditUser = ({ id }: EditUserProps) => {
         setLoadingData(true);
         try {
             const data = await userService.getById(id);
-            setUserData(data);
+
+            // Achata o objeto para o formato que o formulário espera
+            const formattedData = {
+                ...data,
+                profileId: data.profile?.id // Pega o ID de dentro do perfil e coloca na raiz
+            };
+
+            setUserData(formattedData);
         } catch (error) {
-            notification.error('Erro', 'Não foi possível carregar os dados do usuário.');
+            notification.error('Erro', 'Não foi possível carregar os dados.');
         } finally {
             setLoadingData(false);
         }
@@ -57,9 +64,9 @@ export const EditUser = ({ id }: EditUserProps) => {
                 {loadingData ? (
                     <div className="flex justify-center p-10"><Spin /></div>
                 ) : (
-                    <UserForm 
-                        initialValues={userData} 
-                        onSubmit={handleSubmit} 
+                    <UserForm
+                        initialValues={userData}
+                        onSubmit={handleSubmit}
                     />
                 )}
             </Modal>

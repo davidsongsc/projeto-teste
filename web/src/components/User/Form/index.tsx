@@ -2,7 +2,7 @@
 
 import { Form, Input, Button, Select, Card, Switch } from 'antd';
 import { useEffect } from 'react';
-
+import { useProfiles } from '@/src/hooks/useProfiles';
 interface UserFormProps {
   initialValues?: any;
   loading?: boolean;
@@ -11,7 +11,7 @@ interface UserFormProps {
 
 export const UserForm = ({ initialValues, loading, onSubmit }: UserFormProps) => {
   const [form] = Form.useForm();
-
+  const { profiles, loading: loadingProfiles } = useProfiles();
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues);
@@ -26,17 +26,17 @@ export const UserForm = ({ initialValues, loading, onSubmit }: UserFormProps) =>
         onFinish={onSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
-        <Form.Item 
-          name="name" 
-          label="Nome Completo" 
+        <Form.Item
+          name="name"
+          label="Nome Completo"
           rules={[{ required: true, message: 'O nome é obrigatório' }]}
         >
           <Input placeholder="Insira o nome do usuário" className="w-full" />
         </Form.Item>
 
-        <Form.Item 
-          name="email" 
-          label="E-mail" 
+        <Form.Item
+          name="email"
+          label="E-mail"
           rules={[
             { required: true, message: 'O e-mail é obrigatório' },
             { type: 'email', message: 'E-mail inválido' }
@@ -45,9 +45,35 @@ export const UserForm = ({ initialValues, loading, onSubmit }: UserFormProps) =>
           <Input placeholder="usuario@exemplo.com" className="w-full" />
         </Form.Item>
 
-        <Form.Item 
-          name="status" 
-          label="Status da Conta" 
+        <Form.Item
+          name="password"
+          label="Senha"
+          rules={[{ min: 6, message: 'A senha deve ter pelo menos 6 caracteres' }]}
+        >
+          <Input.Password placeholder="Deixe em branco para manter a atual" className="w-full" />
+        </Form.Item>
+
+        <Form.Item
+          name="profileId"
+          label="Perfil"
+          rules={[{ required: true, message: 'O perfil é obrigatório' }]}
+        >
+          <Select
+            placeholder="Selecione um perfil"
+            className="w-full"
+            loading={loadingProfiles} // Mostra um spinner enquanto carrega
+          >
+            {profiles.map((profile: any) => (
+              <Select.Option key={profile.id} value={profile.id}>
+                {profile.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="status"
+          label="Status da Conta"
           valuePropName="checked" // Necessário para o Switch funcionar como booleano
           initialValue={true}
         >
