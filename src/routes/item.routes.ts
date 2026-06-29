@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import { ItemController } from '@/controllers/item.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
-
+import { checkPermission } from '@/middlewares/checkPermissionMiddleware'
+import { ensureAuthenticated } from '@/middlewares/auth'
 const router = Router()
 const controller = new ItemController()
 
@@ -37,7 +38,12 @@ const controller = new ItemController()
  *       '200':
  *         description: Lista de itens
  */
-router.get('/', cacheMiddleware('items', 60), controller.index)
+router.get(
+    '/',
+    ensureAuthenticated,
+    checkPermission('items:read'),
+    cacheMiddleware('items', 60),
+    controller.index)
 
 /**
  * @openapi
@@ -58,7 +64,12 @@ router.get('/', cacheMiddleware('items', 60), controller.index)
  *       '404':
  *         description: Item não encontrado
  */
-router.get('/:id', cacheMiddleware('items', 60), controller.show)
+router.get(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('items:read'),
+    cacheMiddleware('items', 60),
+    controller.show)
 
 /**
  * @openapi
@@ -92,7 +103,11 @@ router.get('/:id', cacheMiddleware('items', 60), controller.show)
  *       '201':
  *         description: Item criado
  */
-router.post('/', controller.store)
+router.post(
+    '/',
+    ensureAuthenticated,
+    checkPermission('items:create'),
+    controller.store)
 
 /**
  * @openapi
@@ -128,7 +143,11 @@ router.post('/', controller.store)
  *       '404':
  *         description: Item não encontrado
  */
-router.put('/:id', controller.update)
+router.put(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('items:update'),
+    controller.update)
 
 /**
  * @openapi
@@ -149,6 +168,10 @@ router.put('/:id', controller.update)
  *       '404':
  *         description: Item não encontrado
  */
-router.delete('/:id', controller.delete)
+router.delete(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('items:delete'),
+    controller.delete)
 
 export default router

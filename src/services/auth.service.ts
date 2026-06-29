@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { compare } from 'bcryptjs'; 
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
@@ -6,7 +7,6 @@ export class AuthService {
   private readonly jwtSecret: string;
 
   constructor() {
-    // Validação imediata: se não houver segredo, o sistema não deve nem subir
     if (!process.env.JWT_SECRET) {
       throw new Error('Configuração fatal: JWT_SECRET não definido no .env');
     }
@@ -19,18 +19,29 @@ export class AuthService {
       include: { profile: true }
     });
 
-    // Segurança: Use a mesma mensagem para não revelar se o e-mail existe
-    if (!user || user.password !== password) {
+    // 1. Validar se o usuário existe
+    if (!user || !user.password) {
       throw new AppError('Usuário ou senha incorretos.', 401);
     }
 
+    // 2. Comparar a senha do body com o HASH salvo no banco
+    const passwordMatch = await compare(password, user.password);
+
+    console.log('passwordMatch', passwordMatch);
+    console.log('password', password);
+    console.log('user.password', user.password);
+
+    if (!passwordMatch) {
+      throw new AppError('Usuário ou senha incorretos.', 401);
+    }
+
+    // 3. Gerar o token com os dados necessários
     const token = jwt.sign(
       {
         id: user.id,
-        email: user.email,
-        profile: user.profile?.role
+        role: user.profile?.role
       },
-      this.jwtSecret, // Use a variável validada no constructor
+      this.jwtSecret,
       { expiresIn: '1d' }
     );
 
@@ -46,6 +57,7 @@ export class AuthService {
   }
 
   async logout() {
-    return prisma.user.updateMany({ where: { status: true }, data: { status: false } });
+
+    return { success: true, message: 'Logout processado' };
   }
 }

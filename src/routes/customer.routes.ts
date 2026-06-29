@@ -1,18 +1,36 @@
 import { Router } from 'express'
-import { UserController } from '../controllers/user.controller'
+import { CustomerController } from '../controllers/customer.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
 import { checkPermission } from '@/middlewares/checkPermissionMiddleware'
 import { ensureAuthenticated } from '@/middlewares/auth'
+
 const router = Router()
-const controller = new UserController()
+const controller = new CustomerController()
 
 /**
  * @openapi
- * /users:
+ * /customers:
  *   get:
  *     tags:
- *       - Users
- *     summary: Lista usuários
+ *       - Customers
+ *     summary: Lista clientes
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: boolean
  *     responses:
  *       '200':
  *         description: OK
@@ -20,17 +38,17 @@ const controller = new UserController()
 router.get(
     '/',
     ensureAuthenticated,
-    checkPermission('user:read'),
-    cacheMiddleware('users', 60),
+    checkPermission('customer:read'),
+    cacheMiddleware('customers', 60),
     controller.index)
 
 /**
  * @openapi
- * /users/{id}:
+ * /customers/{id}:
  *   get:
  *     tags:
- *       - Users
- *     summary: Busca usuário por ID
+ *       - Customers
+ *     summary: Busca cliente por ID
  *     parameters:
  *       - in: path
  *         name: id
@@ -44,17 +62,17 @@ router.get(
 router.get(
     '/:id',
     ensureAuthenticated,
-    checkPermission('user:read'),
-    cacheMiddleware('users', 60),
+    checkPermission('customer:read'),
+    cacheMiddleware('customers', 60),
     controller.show)
 
 /**
  * @openapi
- * /users:
+ * /customers:
  *   post:
  *     tags:
- *       - Users
- *     summary: Cria usuário
+ *       - Customers
+ *     summary: Cria cliente
  *     requestBody:
  *       required: true
  *       content:
@@ -64,14 +82,16 @@ router.get(
  *             required:
  *               - name
  *               - email
- *               - password
+ *               - document
  *             properties:
  *               name:
  *                 type: string
  *               email:
  *                 type: string
- *               password:
+ *               document:
  *                 type: string
+ *               status:
+ *                 type: boolean
  *     responses:
  *       '201':
  *         description: Criado
@@ -79,16 +99,16 @@ router.get(
 router.post(
     '/',
     ensureAuthenticated,
-    checkPermission('user:create'),
+    checkPermission('customer:create'),
     controller.store)
 
 /**
  * @openapi
- * /users/{id}:
+ * /customers/{id}:
  *   put:
  *     tags:
- *       - Users
- *     summary: Atualiza um usuário
+ *       - Customers
+ *     summary: Atualiza cliente
  *     parameters:
  *       - in: path
  *         name: id
@@ -106,31 +126,27 @@ router.post(
  *                 type: string
  *               email:
  *                 type: string
- *               password:
+ *               document:
  *                 type: string
  *               status:
  *                 type: boolean
  *     responses:
  *       '200':
- *         description: Usuário atualizado
- *       '400':
- *         description: Requisição inválida
- *       '404':
- *         description: Usuário não encontrado
+ *         description: OK
  */
 router.put(
     '/:id',
     ensureAuthenticated,
-    checkPermission('user:update'),
+    checkPermission('customer:update'),
     controller.update)
 
 /**
  * @openapi
- * /users/{id}:
+ * /customers/{id}:
  *   delete:
  *     tags:
- *       - Users
- *     summary: Remove um usuário
+ *       - Customers
+ *     summary: Deleta cliente
  *     parameters:
  *       - in: path
  *         name: id
@@ -139,16 +155,12 @@ router.put(
  *           type: string
  *     responses:
  *       '204':
- *         description: Usuário removido com sucesso
- *       '400':
- *         description: Requisição inválida
- *       '404':
- *         description: Usuário não encontrado
+ *         description: Sem conteúdo
  */
 router.delete(
     '/:id',
     ensureAuthenticated,
-    checkPermission('user:delete'),
+    checkPermission('customer:delete'),
     controller.delete)
 
 export default router

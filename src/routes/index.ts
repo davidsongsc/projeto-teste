@@ -6,10 +6,9 @@ import userRoutes from './user.routes'
 import profileRoutes from './profile.routes'
 import collaboratorRoutes from './collaborator.routes'
 import orderRoutes from './order.routes'
-import productRoutes from './product.routes'
 import itemRoutes from './item.routes'
 import permissionRoutes from './permission.routes'
-
+import customerRoutes from './customer.routes'
 
 const router = Router()
 
@@ -17,15 +16,15 @@ const router = Router()
 router.use('/auth', authRoutes)
 
 // Middleware de autenticação para todas as rotas abaixo
-router.use(ensureAuthenticated)
+//router.use(ensureAuthenticated)
 
 // Rotas de autenticação Privadas
 router.use('/users', userRoutes)
 router.use('/profiles', profileRoutes)
 router.use('/collaborators', collaboratorRoutes)
 router.use('/orders', orderRoutes)
-router.use('/products', productRoutes)
 router.use('/items', itemRoutes)
 router.use('/permissions', permissionRoutes)
+router.use('/customers', customerRoutes)
 
 export default router

@@ -1,39 +1,39 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken'; 
-const { verify } = jwt;        
-import { AppError } from '@/errors/AppError';
+import jwt from 'jsonwebtoken';
+const { verify } = jwt;
+import { prisma } from '@/lib/prisma'; // Certifique-se que o caminho está correto
 
-// Interface para estender o Request e salvar os dados do usuário após autenticado
-interface TokenPayload {
-  id: string;
-  role: string;
-}
-
-export const ensureAuthenticated = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const ensureAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    throw new AppError('Usuario nao autenticado.', 401);
+    return res.status(401).json({ success: false, message: 'Token não fornecido.' });
   }
 
-  // O formato esperado é "Bearer <token>"
   const [, token] = authHeader.split(' ');
 
   try {
-    // Verifica se o token é válido usando sua chave secreta
-    const decoded = verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = verify(token, process.env.JWT_SECRET as string) as { id: string };
 
-    const { id, role } = decoded as TokenPayload;
+    // AQUI ESTÁ O SEGREDO: Buscar o usuário com perfil e permissões no banco
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      include: {
+        profile: {
+          include: { permissions: true }
+        }
+      }
+    });
 
-    // Injeta o ID e role do usuário no objeto Request para uso nos próximos controllers
-    req.user = { id, role };
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Usuário não encontrado.' });
+    }
 
-    return next();
+    // Injetamos o objeto completo do usuário com perfil/permissões
+    req.user = { data: user };
+
+    next();
   } catch (err) {
-    throw new AppError('Sessao expirada.', 401);
+    return res.status(401).json({ success: false, message: 'Token inválido.' });
   }
 };
