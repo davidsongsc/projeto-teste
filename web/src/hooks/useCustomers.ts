@@ -1,6 +1,10 @@
-import { customerService } from '@/src/services/customers.service';
-import { useCustomerStore } from '@/src/store/useCustomerStore';
-import { CustomerFilters, CreateCustomerDTO, UpdateCustomerDTO } from '@/src/interfaces/customers';
+import { customerService } from "@/src/services/customers.serivce";
+import { useCustomerStore } from "@/src/store/useCustomerStore";
+import {
+    CustomerFilters,
+    CreateCustomerDTO,
+    UpdateCustomerDTO,
+} from "@/src/interfaces/customer";
 
 export const useCustomers = () => {
     const {
@@ -11,11 +15,12 @@ export const useCustomers = () => {
         setCustomers,
         addCustomer,
         updateCustomer: updateCustomerStore,
-        removeCustomer
+        removeCustomer,
     } = useCustomerStore();
 
     const fetchCustomers = async (params?: CustomerFilters) => {
         setLoading(true);
+
         try {
             const data = await customerService.list(params);
             setCustomers(data);
@@ -29,6 +34,7 @@ export const useCustomers = () => {
 
     const createCustomer = async (data: CreateCustomerDTO) => {
         setLoading(true);
+
         try {
             const newCustomer = await customerService.create(data);
             addCustomer(newCustomer);
@@ -38,8 +44,12 @@ export const useCustomers = () => {
         }
     };
 
-    const updateCustomer = async (id: string, data: UpdateCustomerDTO) => {
+    const updateCustomer = async (
+        id: string,
+        data: UpdateCustomerDTO
+    ) => {
         setLoading(true);
+
         try {
             const updatedCustomer = await customerService.update(id, data);
             updateCustomerStore(id, updatedCustomer);
@@ -49,19 +59,9 @@ export const useCustomers = () => {
         }
     };
 
-    const updateCustomerStatus = async (id: string, status: boolean) => {
-        setLoading(true);
-        try {
-            const updatedCustomer = await customerService.updateStatus(id, status);
-            updateCustomerStore(id, updatedCustomer);
-            return updatedCustomer;
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const deleteCustomer = async (id: string) => {
         setLoading(true);
+
         try {
             await customerService.remove(id);
             removeCustomer(id);
@@ -77,7 +77,6 @@ export const useCustomers = () => {
         fetchCustomers,
         createCustomer,
         updateCustomer,
-        updateCustomerStatus,
-        deleteCustomer
+        deleteCustomer,
     };
 };

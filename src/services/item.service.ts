@@ -7,7 +7,6 @@ export class ItemService {
     limit?: number
     search?: string
     orderId?: string
-    productId?: string
   }) {
     const page = Number(params?.page || 1)
     const limit = Number(params?.limit || 10)
@@ -19,16 +18,10 @@ export class ItemService {
       where.orderId = params.orderId
     }
 
-    if (params?.productId) {
-      where.productId = params.productId
-    }
-
     if (params?.search) {
-      where.product = {
-        name: {
-          contains: params.search,
-          mode: 'insensitive'
-        }
+      where.name = {
+        contains: params.search,
+        mode: 'insensitive'
       }
     }
 
@@ -46,13 +39,6 @@ export class ItemService {
             select: {
               id: true,
               status: true
-            }
-          },
-          product: {
-            select: {
-              id: true,
-              name: true,
-              price: true
             }
           }
         }
@@ -76,13 +62,6 @@ export class ItemService {
             id: true,
             status: true
           }
-        },
-        product: {
-          select: {
-            id: true,
-            name: true,
-            price: true
-          }
         }
       }
     })
@@ -90,9 +69,11 @@ export class ItemService {
 
   async create(data: {
     orderId: string
-    productId: string
+    name: string
     price: Prisma.Decimal | number | string
+    total: Prisma.Decimal | number | string
     count: number
+    description?: string
   }) {
     return prisma.item.create({
       data
@@ -103,9 +84,11 @@ export class ItemService {
     id: string,
     data: {
       orderId?: string
-      productId?: string
+      name?: string
       price?: Prisma.Decimal | number | string
+      total?: Prisma.Decimal | number | string
       count?: number
+      description?: string
     }
   ) {
     return prisma.item.update({

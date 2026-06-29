@@ -1,13 +1,16 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { PERMISSIONS } from '@/config/permissions';
 
 export class CollaboratorService {
-  async findAll(params?: {
-    page?: number
-    limit?: number
-    search?: string
-    status?: boolean
-  }) {
+  
+  async findAll(
+    params?: {
+      page?: number
+      limit?: number
+      search?: string
+      status?: boolean
+    }) {
     const page = Number(params?.page || 1)
     const limit = Number(params?.limit || 10)
     const skip = (page - 1) * limit
@@ -81,7 +84,8 @@ export class CollaboratorService {
     }
   }
 
-  async findById(id: string) {
+  async findById(
+    id: string) {
     return prisma.collaborator.findUnique({
       where: { id },
       include: {
@@ -103,17 +107,20 @@ export class CollaboratorService {
     })
   }
 
-  async create(data: {
-    name: string
-    profileId: string
-    userId: string
-  }) {
+  async create(
+    data: {
+      name: string
+      profileId: string
+      userId: string
+    }) {
     return prisma.collaborator.create({
       data
     })
   }
-  
-  async updateStatus(id: string, status: boolean) {
+
+  async updateStatus(
+    id: string,
+    status: boolean) {
     return prisma.collaborator.update({
       where: {
         id
@@ -139,7 +146,8 @@ export class CollaboratorService {
     })
   }
 
-  async delete(id: string) {
+  async delete(
+    id: string) {
     return prisma.collaborator.delete({
       where: { id }
     })

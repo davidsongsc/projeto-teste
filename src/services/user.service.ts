@@ -1,3 +1,4 @@
+import { hash } from 'bcryptjs';
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
@@ -80,6 +81,7 @@ export class UserService {
         status: true,
         profile: {
           select: {
+            id: true,
             name: true,
             role: true
           }
@@ -95,26 +97,44 @@ export class UserService {
     email: string
     document?: string
     password: string
+    profileId?: string;
   }) {
+    const passwordHash = await hash(data.password, 8);
     return prisma.user.create({
-      data
-    })
+      data: {
+        ...data,
+        password: passwordHash,
+      }
+    });
   }
-
   async update(
     id: string,
     data: {
-      name?: string
-      email?: string
-      document?: string
-      password?: string
-      status?: boolean
+      name?: string;
+      email?: string;
+      password?: string;
+      status?: boolean;
+      profileId?: string;
     }
   ) {
+    const updateData: Prisma.UserUpdateInput = {
+      name: data.name,
+      email: data.email,
+      status: data.status,
+      profileId: data.profileId,
+    };
+
+    if (data.password) {
+      updateData.password = await hash(data.password, 8);
+    }
+
     return prisma.user.update({
       where: { id },
-      data
-    })
+      data: updateData,
+      include: {
+        profile: true,
+      },
+    });
   }
 
   async delete(id: string) {

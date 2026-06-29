@@ -1,17 +1,15 @@
 'use client';
 
-import { Form, Input, Button, Select, Card, Switch } from 'antd';
+import { Form, Input, Button, Card, Switch } from 'antd';
 import { useEffect } from 'react';
 
 interface CustomerFormProps {
   initialValues?: any;
   loading?: boolean;
   onSubmit: (values: any) => void;
-  users: { id: string; name: string }[];
-  profiles: { id: string; name: string }[];
 }
 
-export const CustomerForm = ({ initialValues, loading, onSubmit, users, profiles }: CustomerFormProps) => {
+export const CustomerForm = ({ initialValues, loading, onSubmit }: CustomerFormProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -21,7 +19,7 @@ export const CustomerForm = ({ initialValues, loading, onSubmit, users, profiles
   }, [initialValues, form]);
 
   return (
-    <Card className="shadow-md rounded-lg p-4">
+    <Card title="Dados do Cliente" className="shadow-md rounded-lg p-4">
       <Form
         form={form}
         layout="vertical"
@@ -30,32 +28,29 @@ export const CustomerForm = ({ initialValues, loading, onSubmit, users, profiles
       >
         <Form.Item 
           name="name" 
-          label="Nome do Cliente" 
+          label="Nome Completo" 
           rules={[{ required: true, message: 'O nome é obrigatório' }]}
         >
-          <Input placeholder="Ex: Logística Rápida Ltda" className="w-full" />
+          <Input placeholder="Insira o nome do cliente" className="w-full" />
         </Form.Item>
 
         <Form.Item 
-          name="userId" 
-          label="Usuário Responsável" 
-          rules={[{ required: true, message: 'Selecione um usuário' }]}
+          name="document" 
+          label="CPF / CNPJ" 
+          rules={[{ required: true, message: 'O documento é obrigatório' }]}
         >
-          <Select 
-            placeholder="Selecione um usuário" 
-            options={users.map(u => ({ label: u.name, value: u.id }))} 
-          />
+          <Input placeholder="000.000.000-00" className="w-full" />
         </Form.Item>
 
         <Form.Item 
-          name="profileId" 
-          label="Perfil de Acesso" 
-          rules={[{ required: true, message: 'Selecione um perfil' }]}
+          name="email" 
+          label="E-mail" 
+          rules={[
+            { required: true, message: 'O e-mail é obrigatório' },
+            { type: 'email', message: 'E-mail inválido' }
+          ]}
         >
-          <Select 
-            placeholder="Selecione um perfil" 
-            options={profiles.map(p => ({ label: p.name, value: p.id }))} 
-          />
+          <Input placeholder="cliente@exemplo.com" className="w-full" />
         </Form.Item>
 
         <Form.Item 
@@ -70,7 +65,7 @@ export const CustomerForm = ({ initialValues, loading, onSubmit, users, profiles
         <div className="md:col-span-2 flex justify-end gap-2 mt-4">
           <Button onClick={() => form.resetFields()}>Limpar</Button>
           <Button type="primary" htmlType="submit" loading={loading}>
-            {initialValues ? 'Atualizar Cliente' : 'Criar Cliente'}
+            {initialValues ? 'Atualizar Cliente' : 'Cadastrar Cliente'}
           </Button>
         </div>
       </Form>

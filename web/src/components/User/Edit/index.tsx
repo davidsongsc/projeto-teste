@@ -11,11 +11,18 @@ import { notification } from '@/src/components/Notification/notification';
 interface EditUserProps {
     id: string;
 }
+interface UserData {
+    id: string;
+    name: string;
+    email: string;
+    profileId?: string; // Opcional se for uma transformação
+    [key: string]: any; // Permite outras propriedades dinâmicas
+}
 
 export const EditUser = ({ id }: EditUserProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState<UserData | null>(null);
     const { updateUser } = useUsers();
 
     const handleOpen = async () => {
@@ -23,9 +30,16 @@ export const EditUser = ({ id }: EditUserProps) => {
         setLoadingData(true);
         try {
             const data = await userService.getById(id);
-            setUserData(data);
+
+            // Achata o objeto para o formato que o formulário espera
+            const formattedData = {
+                ...data,
+                profileId: data.profile?.id // Pega o ID de dentro do perfil e coloca na raiz
+            };
+
+            setUserData(formattedData);
         } catch (error) {
-            notification.error('Erro', 'Não foi possível carregar os dados do usuário.');
+            notification.error('Erro', 'Não foi possível carregar os dados.');
         } finally {
             setLoadingData(false);
         }
@@ -57,9 +71,9 @@ export const EditUser = ({ id }: EditUserProps) => {
                 {loadingData ? (
                     <div className="flex justify-center p-10"><Spin /></div>
                 ) : (
-                    <UserForm 
-                        initialValues={userData} 
-                        onSubmit={handleSubmit} 
+                    <UserForm
+                        initialValues={userData}
+                        onSubmit={handleSubmit}
                     />
                 )}
             </Modal>

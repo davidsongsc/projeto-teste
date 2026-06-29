@@ -21,9 +21,9 @@ export const CreateOrder = () => {
 
     return (
         <>
-            <Button 
-                type="primary" 
-                icon={<PlusOutlined />} 
+            <Button
+                type="primary"
+                icon={<PlusOutlined />}
                 onClick={() => setIsModalVisible(true)}
             >
                 Novo Pedido
@@ -33,12 +33,12 @@ export const CreateOrder = () => {
                 title="Criar Novo Pedido"
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
-                footer={null} // O Footer do Form já contém o botão de submit
-                destroyOnClose // Garante que o form limpe ao fechar
+                footer={null}
+                 
             >
-                <OrderForm 
-                    onSubmit={handleSubmit} 
-                    loading={isLoading} 
+                <OrderForm
+                    onSubmit={handleSubmit}
+                    loading={isLoading}
                 />
             </Modal>
         </>

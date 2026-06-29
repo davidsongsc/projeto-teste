@@ -4,39 +4,40 @@ import { ListResponse } from "./listResponse";
 export interface Customer {
     id: string;
     name: string;
+    document: string;
+    email: string;
     status: boolean;
     created_at: string;
     updated_at: string;
-    profileId: string;
-    userId: string;
-    profile?: {
-        id: string;
-        name: string;
-        role: string;
-    };
-    user?: {
-        id: string;
-        name: string;
-        email: string;
-    };
 }
+
+export type CustomerListResponse = ListResponse<Customer>;
 
 export interface CustomerFilters extends Filters {
     status?: boolean;
-    profileId?: string;
-    userId?: string;
 }
-export type CustomerListResponse = ListResponse<Customer>;
 
 export interface CreateCustomerDTO {
     name: string;
-    profileId: string;
-    userId: string;
+    document: string;
+    email: string;
+    status?: boolean;
 }
 
 export interface UpdateCustomerDTO {
     name?: string;
-    profileId?: string;
-    userId?: string;
+    document?: string;
+    email?: string;
     status?: boolean;
+}
+
+export interface CustomerOrder {
+    id: string;
+    totalPrice: number;
+    status: string;
+    created_at: string;
+}
+
+export interface CustomerDetails extends Customer {
+    orders: CustomerOrder[];
 }

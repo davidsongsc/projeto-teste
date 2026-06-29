@@ -12,17 +12,18 @@ interface EditOrderProps {
     id: string;
 }
 
+
 export const EditOrder = ({ id }: EditOrderProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
-    const [orderData, setOrderData] = useState(null);
+    const [orderData, setOrderData] = useState<any>(null);
     const { updateOrder, fetchOrders } = useOrders();
 
     const handleOpen = async () => {
         setIsModalVisible(true);
         setLoadingData(true);
         try {
-            const data = await orderService.getById(id);
+            const data = await orderService.getById(id) as any;
             setOrderData(data);
         } catch (error) {
             notification.error('Erro', 'Não foi possível carregar os dados do pedido.');
@@ -53,14 +54,14 @@ export const EditOrder = ({ id }: EditOrderProps) => {
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
-                destroyOnClose
+                 
             >
                 {loadingData ? (
                     <div className="flex justify-center p-10"><Spin /></div>
                 ) : (
-                    <OrderForm 
-                        initialValues={orderData} 
-                        onSubmit={handleSubmit} 
+                    <OrderForm
+                        initialValues={orderData}
+                        onSubmit={handleSubmit}
                     />
                 )}
             </Modal>

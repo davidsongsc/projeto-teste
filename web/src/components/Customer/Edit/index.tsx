@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Modal, Button, Spin, message } from 'antd';
+import { Modal, Button, Spin } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import { CustomerForm } from '../Form';
-import { customerService } from '@/src/services/customers.service';
-import { userService } from '@/src/services/users.service';
-import { profileService } from '@/src/services/profiles.service';
-import { useCustomers } from '@/src/hooks/useCustomer';
-import { User } from '@/src/interfaces/user';
-import { Profile } from '@/src/interfaces/profile';
+import { CustomerForm } from '../Form'; // Ajuste o caminho
+import { customerService } from '@/src/services/customers.serivce';
+import { useCustomers } from '@/src/hooks/useCustomers'; // Ajuste conforme seu hook
+import { notification } from '@/src/components/Notification/notification';
+import { CustomerDetails } from '@/src/interfaces/customer';
 
 interface EditCustomerProps {
     id: string;
@@ -18,29 +16,18 @@ interface EditCustomerProps {
 export const EditCustomer = ({ id }: EditCustomerProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
-    const [customerData, setCustomerData] = useState(null);
-    const [users, setUsers] = useState<User[]>([]);
-    const [profiles, setProfiles] = useState<Profile[]>([]);
-    
+    const [customerData, setCustomerData] = useState<CustomerDetails>();
     const { updateCustomer } = useCustomers();
 
     const handleOpen = async () => {
         setIsModalVisible(true);
         setLoadingData(true);
         try {
-            // Buscamos o cliente E os dados auxiliares em paralelo
-            const [customer, usersData, profilesData] = await Promise.all([
-                customerService.getById(id),
-                userService.list({ limit: 100 }),
-                profileService.list({ limit: 100 })
-            ]);
-            
-            setCustomerData(customer);
-            setUsers(usersData.results);
-            setProfiles(profilesData.results);
+            // Buscando os dados atuais do cliente para preencher o formulário
+            const data = await customerService.getById(id); 
+            setCustomerData(data);
         } catch (error) {
-            message.error('Erro ao carregar dados do cliente.');
-            setIsModalVisible(false);
+            notification.error('Não foi possível carregar os dados do cliente.');
         } finally {
             setLoadingData(false);
         }
@@ -49,10 +36,10 @@ export const EditCustomer = ({ id }: EditCustomerProps) => {
     const handleSubmit = async (values: any) => {
         try {
             await updateCustomer(id, values);
-            message.success('Cliente atualizado com sucesso!');
+            notification.success('Cliente atualizado com sucesso!');
             setIsModalVisible(false);
         } catch (error) {
-            // O erro já é tratado no seu serviço/hook
+            notification.error('Ocorreu um erro ao tentar atualizar o cliente.');
         }
     };
 
@@ -70,13 +57,11 @@ export const EditCustomer = ({ id }: EditCustomerProps) => {
                 destroyOnClose
             >
                 {loadingData ? (
-                    <div className="flex justify-center p-10"><Spin size="large" /></div>
+                    <div className="flex justify-center p-10"><Spin /></div>
                 ) : (
                     <CustomerForm 
                         initialValues={customerData} 
-                        onSubmit={handleSubmit}
-                        users={users}
-                        profiles={profiles}
+                        onSubmit={handleSubmit} 
                     />
                 )}
             </Modal>
