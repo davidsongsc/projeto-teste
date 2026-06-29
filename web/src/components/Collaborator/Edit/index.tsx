@@ -3,43 +3,44 @@
 import { useState } from 'react';
 import { Modal, Button, Spin, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import { CustomerForm } from '../Form';
-import { customerService } from '@/src/services/customers.service';
+import { CollaboratorForm } from '../Form';
+import { collaboratorService } from '@/src/services/collaborator.service';
 import { userService } from '@/src/services/users.service';
 import { profileService } from '@/src/services/profiles.service';
-import { useCustomers } from '@/src/hooks/useCustomer';
+import { useCollaborators } from '@/src/hooks/useCollaborator';
 import { User } from '@/src/interfaces/user';
 import { Profile } from '@/src/interfaces/profile';
+import { Collaborator } from '@/src/interfaces/collaborator';
 
-interface EditCustomerProps {
+interface EditCollaboratorProps {
     id: string;
 }
 
-export const EditCustomer = ({ id }: EditCustomerProps) => {
+export const EditCollaborator = ({ id }: EditCollaboratorProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
-    const [customerData, setCustomerData] = useState(null);
+    const [collaboratorData, setCollaboratorData] = useState<Collaborator | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [profiles, setProfiles] = useState<Profile[]>([]);
-    
-    const { updateCustomer } = useCustomers();
+
+    const { updateCollaborator } = useCollaborators();
 
     const handleOpen = async () => {
         setIsModalVisible(true);
         setLoadingData(true);
+
         try {
-            // Buscamos o cliente E os dados auxiliares em paralelo
-            const [customer, usersData, profilesData] = await Promise.all([
-                customerService.getById(id),
+            const [collaborator, usersData, profilesData] = await Promise.all([
+                collaboratorService.getById(id),
                 userService.list({ limit: 100 }),
                 profileService.list({ limit: 100 })
             ]);
-            
-            setCustomerData(customer);
+
+            setCollaboratorData(collaborator);
             setUsers(usersData.results);
             setProfiles(profilesData.results);
-        } catch (error) {
-            message.error('Erro ao carregar dados do cliente.');
+        } catch {
+            message.error('Erro ao carregar dados do colaborador.');
             setIsModalVisible(false);
         } finally {
             setLoadingData(false);
@@ -48,12 +49,10 @@ export const EditCustomer = ({ id }: EditCustomerProps) => {
 
     const handleSubmit = async (values: any) => {
         try {
-            await updateCustomer(id, values);
-            message.success('Cliente atualizado com sucesso!');
+            await updateCollaborator(id, values);
+            message.success('Colaborador atualizado com sucesso!');
             setIsModalVisible(false);
-        } catch (error) {
-            // O erro já é tratado no seu serviço/hook
-        }
+        } catch {}
     };
 
     return (
@@ -63,17 +62,19 @@ export const EditCustomer = ({ id }: EditCustomerProps) => {
             </Button>
 
             <Modal
-                title="Editar Cliente"
+                title="Editar Colaborador"
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
                 destroyOnClose
             >
                 {loadingData ? (
-                    <div className="flex justify-center p-10"><Spin size="large" /></div>
+                    <div className="flex justify-center p-10">
+                        <Spin size="large" />
+                    </div>
                 ) : (
-                    <CustomerForm 
-                        initialValues={customerData} 
+                    <CollaboratorForm
+                        initialValues={collaboratorData}
                         onSubmit={handleSubmit}
                         users={users}
                         profiles={profiles}

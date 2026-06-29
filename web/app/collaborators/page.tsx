@@ -1,11 +1,11 @@
 'use client';
 
-import { CustomerList } from '@/src/components/Customer/List';
+import { CollaboratorList } from '@/src/components/Collaborator/List';
 import { Breadcrumb, Layout } from 'antd';
 
 const { Content } = Layout;
 
-export default function CustomersPage() {
+export default function CollaboratorsPage() {
     return (
         <Layout style={{ minHeight: '100vh', padding: '24px' }}>
             <Breadcrumb
@@ -15,13 +15,13 @@ export default function CustomersPage() {
                         title: 'Home',
                     },
                     {
-                        title: 'Clientes',
+                        title: 'Colaboradores',
                     },
                 ]}
             />
 
             <Content>
-                <CustomerList />
+                <CollaboratorList />
             </Content>
         </Layout>
     );

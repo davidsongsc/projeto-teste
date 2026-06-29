@@ -1,37 +1,40 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Table, Card, Input, Select, Space, Spin } from 'antd';
-import { useCustomers } from '@/src/hooks/useCustomer';
+import { Table, Card, Input, Select, Space } from 'antd';
+import { useCollaborators } from '@/src/hooks/useCollaborator';
 import { useDebounce } from '@/src/hooks/useDebounce';
-import { getCustomerColumns } from './columns';
-import { useRouter } from 'next/navigation';
-import { CreateCustomer } from '../Create';
+import { getCollaboratorColumns } from './columns';
+import { CreateCollaborator } from '../Create';
 import { useAuthStore } from '@/src/store/useAuthStore';
 import { UnauthorizedAccess } from '@/src/components/Auth/UnauthorizedAccess';
 
-export const CustomerList = () => {
-    const router = useRouter();
+export const CollaboratorList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
     const [currentPage, setCurrentPage] = useState(1);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
     const { user, isLoadingAuth } = useAuthStore();
-    const { customers, isLoading, pagination, fetchCustomers, deleteCustomer } = useCustomers();
+
+    const {
+        collaborators,
+        isLoading,
+        pagination,
+        fetchCollaborators,
+        deleteCollaborator
+    } = useCollaborators();
 
     useEffect(() => {
         if (!isLoadingAuth || !user) return;
 
-        fetchCustomers({
+        fetchCollaborators({
             page: currentPage,
             limit: 10,
             search: debouncedSearch,
             status: statusFilter === undefined ? undefined : statusFilter === 'true'
         });
     }, [currentPage, debouncedSearch, statusFilter, user, isLoadingAuth]);
-
-    const handleDelete = (id: string) => deleteCustomer(id);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -43,10 +46,10 @@ export const CustomerList = () => {
 
     return (
         <Card
-            title="Listagem de Clientes"
+            title="Listagem de Colaboradores"
             extra={
                 <Space size="middle">
-                    <CreateCustomer />
+                    <CreateCollaborator />
                     <Input
                         placeholder="Buscar por nome..."
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -59,15 +62,15 @@ export const CustomerList = () => {
                         onChange={(value) => setStatusFilter(value)}
                         options={[
                             { value: 'true', label: 'Ativo' },
-                            { value: 'false', label: 'Inativo' },
+                            { value: 'false', label: 'Inativo' }
                         ]}
                     />
                 </Space>
             }
         >
             <Table
-                columns={getCustomerColumns(handleDelete)}
-                dataSource={customers}
+                columns={getCollaboratorColumns(deleteCollaborator)}
+                dataSource={collaborators}
                 rowKey="id"
                 scroll={{ x: 900 }}
                 loading={isLoading}
@@ -75,7 +78,7 @@ export const CustomerList = () => {
                     current: pagination.page,
                     pageSize: 10,
                     total: pagination.total_items,
-                    onChange: (page) => setCurrentPage(page),
+                    onChange: (page) => setCurrentPage(page)
                 }}
             />
         </Card>

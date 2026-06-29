@@ -1,7 +1,7 @@
 import { Filters } from "./filters";
 import { ListResponse } from "./listResponse";
 
-export interface Customer {
+export interface Collaborator {
     id: string;
     name: string;
     status: boolean;
@@ -21,20 +21,20 @@ export interface Customer {
     };
 }
 
-export interface CustomerFilters extends Filters {
+export interface CollaboratorFilters extends Filters {
     status?: boolean;
     profileId?: string;
     userId?: string;
 }
-export type CustomerListResponse = ListResponse<Customer>;
+export type CollaboratorListResponse = ListResponse<Collaborator>;
 
-export interface CreateCustomerDTO {
+export interface CreateCollaboratorDTO {
     name: string;
     profileId: string;
     userId: string;
 }
 
-export interface UpdateCustomerDTO {
+export interface UpdateCollaboratorDTO {
     name?: string;
     profileId?: string;
     userId?: string;

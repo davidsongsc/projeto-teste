@@ -1,11 +1,11 @@
 import { ColumnsType } from 'antd/es/table';
-import { Customer } from '@/src/interfaces/customers';
 import { Tag } from 'antd';
-import { CustomerActions } from '../Actions';
+import { Collaborator } from '@/src/interfaces/collaborator';
+import { CollaboratorActions } from '../Actions';
 
-export const getCustomerColumns = (
+export const getCollaboratorColumns = (
     onDelete: (id: string) => Promise<void>
-): ColumnsType<Customer> => [
+): ColumnsType<Collaborator> => [
     {
         title: 'Nome',
         dataIndex: 'name',
@@ -28,6 +28,7 @@ export const getCustomerColumns = (
         key: 'status',
         render: (status) => {
             const isActive = status === true;
+
             return (
                 <Tag color={isActive ? 'green' : 'red'}>
                     {isActive ? 'ATIVO' : 'INATIVO'}
@@ -41,8 +42,8 @@ export const getCustomerColumns = (
         key: 'action',
         fixed: 'right',
         render: (_, record) => (
-            <CustomerActions
-                record={record}
+            <CollaboratorActions
+                collaborator={record}
                 onDelete={onDelete}
             />
         ),
