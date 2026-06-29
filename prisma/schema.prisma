@@ -17,7 +17,7 @@ model User {
   profileId String?
   profile   Profile? @relation("UserProfile", fields: [profileId], references: [id])
 
-  customers Customer[]
+  collaborator Collaborator[]
   orders    Order[]
 
   created_at DateTime @default(now())
@@ -32,7 +32,7 @@ model Profile {
   status      Boolean  @default(true)
 
   users       User[]     @relation("UserProfile")
-  customers   Customer[]
+  collaborator   Collaborator[]
   permissions Permission[]
 }
 
