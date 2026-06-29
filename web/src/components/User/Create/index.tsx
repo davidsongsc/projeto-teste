@@ -16,7 +16,6 @@ export const CreateUser = () => {
             message.success('Usuário criado com sucesso!');
             setIsModalVisible(false);
         } catch (error) {
-            // O tratamento de erro centralizado pelo api.ts já notificará o usuário
         }
     };
 

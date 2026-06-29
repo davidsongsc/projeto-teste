@@ -34,8 +34,16 @@ export default function ThemeProvider({
         headerBg: colors.surface,
         colorBgContainer: colors.surface,
       },
+      Input: {
+        controlHeightLG: 45,
+        colorBgContainer: colors.surface,
+        colorBorder: colors.border,
+        textColor: colors.text,
+        padding: '8px',
+      },
       Button: {
         borderRadius: 6,
+        controlHeightLG: 45,
       }
     }
   }), [themeType, colors]);

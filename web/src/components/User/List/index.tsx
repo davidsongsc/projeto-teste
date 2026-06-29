@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Table, Card, Input, Select, Space, Button } from 'antd';
+import { Table, Card, Input, Select, Space, Button, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useUsers } from '@/src/hooks/useUsers';
 import { useDebounce } from '@/src/hooks/useDebounce';
 import { getUserColumns } from './columns';
 import { useRouter } from 'next/navigation';
 import { CreateUser } from '../Create';
+import { useAuthStore } from '@/src/store/useAuthStore';
+import { UnauthorizedAccess } from '../../Auth/UnauthorizedAccess';
 export const UserList = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,17 +15,22 @@ export const UserList = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
-
+    const { user, isLoadingAuth } = useAuthStore();
     const { users, isLoading, pagination, fetchUsers, deleteUser } = useUsers();
 
     useEffect(() => {
+        if (!isLoadingAuth) return;
+        if (!user) {
+
+            return;
+        }
         fetchUsers({
             page: currentPage,
             limit: 10,
             search: debouncedSearch,
             status: statusFilter
         });
-    }, [currentPage, debouncedSearch, statusFilter]);
+    }, [currentPage, debouncedSearch, statusFilter, user, isLoadingAuth]);
     const handleEdit = (id: string) => {
         router.push(`/users/edit/${id}`);
     };
@@ -35,12 +42,13 @@ export const UserList = () => {
         setCurrentPage(1);
     }, [debouncedSearch, statusFilter]);
 
+    if (!user || !isLoadingAuth) return < UnauthorizedAccess />;
+
     return (
         <Card
             title="Listagem de Usuários"
             extra={
                 <Space size="middle">
-                    {/* Botão de Novo Usuário adicionado aqui */}
                     <CreateUser />
 
                     <Input

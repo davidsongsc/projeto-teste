@@ -47,7 +47,7 @@ export const getOrderColumns = (
                     dateStyle: 'short',
                     timeStyle: 'short',
                 }).format(new Date(date)),
-            width: 150,
+            minWidth: 150,
         },
         {
             title: 'Ações',
