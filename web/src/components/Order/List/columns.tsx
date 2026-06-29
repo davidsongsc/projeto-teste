@@ -3,7 +3,7 @@ import { Tag, Space, Tooltip, Button } from 'antd';
 import { Order } from '@/src/interfaces/order';
 import { DeleteButton } from '@/src/components/Buttons/DeleteButton';
 import { EditOrder } from '../Edit';
-import { ShoppingCartOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 
 const currency = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -27,7 +27,7 @@ const statusMap = {
 
 export const getOrderColumns = (
     onEdit: (id: string) => void,
-    onDelete: (id: string) => void
+    onDelete: (id: string) => Promise<void>,
 ): ColumnsType<Order> => [
         {
             title: 'Pedido',
@@ -70,7 +70,7 @@ export const getOrderColumns = (
             key: 'status',
             width: 130,
             align: 'center',
-            render: (status) => {
+            render: (status: keyof typeof statusMap) => {
                 const item = statusMap[status] ?? {
                     color: 'default',
                     label: status,
@@ -97,16 +97,10 @@ export const getOrderColumns = (
             title: 'Ações',
             key: 'action',
             width: 120,
-            fixed: 'right',
+
             render: (_, record) => (
                 <Space>
-                    <Button
-                        type="primary"
-                        icon={<ShoppingCartOutlined />}
-                        onClick={() => openCreateOrder(record)}
-                    >
-                        Novo Pedido
-                    </Button>
+
                     <EditOrder id={record.id} />
                     <DeleteButton
                         id={record.id}

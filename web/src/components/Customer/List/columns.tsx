@@ -1,11 +1,14 @@
 import { ColumnsType } from "antd/es/table";
-import { Tag } from "antd";
+import { Button, Space, Tag } from "antd";
 import { Customer } from "@/src/interfaces/customer";
 import { CustomerActions } from "../Actions";
+import { ShoppingCartOutlined } from '@ant-design/icons';
 
 export const getCustomerColumns = (
     onDelete: (id: string) => Promise<void>,
-    onEdit: (id: string) => void
+    onEdit: (id: string) => void,
+    handleOpenCreate: (customerId: string) => void
+
 ): ColumnsType<Customer> => [
         /*{
             title: "ID",
@@ -68,15 +71,29 @@ export const getCustomerColumns = (
                 }).format(new Date(date)),
             minWidth: 150,
         },
+
         {
             title: "Ações",
             key: "action",
             width: 200,
             render: (_, record) => (
-                <CustomerActions
-                    record={record}
-                    onDelete={onDelete}
-                />
+                <Space>
+                    <Button
+                        type="primary"
+                        icon={<ShoppingCartOutlined />}
+                        // Verifica se o status é falso para desabilitar
+                        disabled={record.status === false}
+
+                        onClick={() => handleOpenCreate(record.id)}
+                    >
+                        Novo Pedido
+                    </Button>
+                    <CustomerActions
+                        record={record}
+                        onDelete={onDelete}
+                    />
+                </Space>
             ),
+
         },
     ];

@@ -43,7 +43,7 @@ export const getCollaboratorColumns = (
         fixed: 'right',
         render: (_, record) => (
             <CollaboratorActions
-                collaborator={record}
+                record={record}
                 onDelete={onDelete}
             />
         ),
