@@ -3,15 +3,15 @@ import { useUserStore } from '@/src/store/useUsersStore';
 import { UserFilters, CreateUserDTO, UpdateUserDTO } from '@/src/interfaces/user';
 
 export const useUsers = () => {
-  const { 
-    users, 
-    pagination, 
-    isLoading, 
-    setLoading, 
-    setUsers, 
-    addUser, 
-    updateUser: updateUserStore, 
-    removeUser 
+  const {
+    users,
+    pagination,
+    isLoading,
+    setLoading,
+    setUsers,
+    addUser,
+    updateUser: updateUserStore,
+    removeUser
   } = useUserStore();
 
   const fetchUsers = async (params?: UserFilters) => {
@@ -38,11 +38,19 @@ export const useUsers = () => {
     }
   };
 
-  const updateUser = async (id: string, data: UpdateUserDTO) => {
+  const updateUser = async (
+    id: string,
+    data: UpdateUserDTO,
+    filters?: UserFilters
+  ) => {
     setLoading(true);
+
     try {
       const updatedUser = await userService.update(id, data);
-      updateUserStore(id, updatedUser);
+
+      const users = await userService.list(filters);
+      setUsers(users);
+
       return updatedUser;
     } finally {
       setLoading(false);

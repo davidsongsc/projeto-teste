@@ -19,10 +19,14 @@ export async function api<T = any>(
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
 
+        console.log(`[API ERROR] Status: ${response.status}`, errorData);
+
         if (response.status === 401) {
-            notification.error('Acesso Negado', 'Sua sessão expirou. Faça login novamente.');
+            notification.error('Acesso Negado', 'Sua sessão expirou.');
+        } else if (response.status === 403) {
+            notification.error('Acesso Negado', 'Permissão insuficiente.');
         } else {
-            notification.error('Erro na requisição', errorData.message || 'Ocorreu um erro inesperado.');
+            notification.error('Erro', errorData.message || 'Erro inesperado.');
         }
 
         throw new Error(errorData.message || 'Erro na API');
