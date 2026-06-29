@@ -39,7 +39,7 @@ export default function ThemeProvider({
         colorBgContainer: colors.surface,
         colorBorder: colors.border,
         textColor: colors.text,
-        padding: '8px',
+        padding: 8, 
       },
       Button: {
         borderRadius: 6,
