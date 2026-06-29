@@ -158,7 +158,26 @@ Além disso, foram utilizadas algumas bibliotecas auxiliares para apoiar seguran
 
 A abordagem adotada buscou manter o projeto simples, alinhado ao escopo proposto, ao mesmo tempo em que aplicou boas práticas de segurança e organização.
 
+## Testes de Regras de Negócio e Permissões
 
+Foram implementados testes unitários com foco na validação de regras de negócio do módulo de pedidos e controle de acesso baseado em perfil de usuário.
+
+O objetivo é garantir que operações críticas não possam ser executadas em estados inválidos ou por usuários sem permissão adequada.
+
+### Regras de negócio cobertas (Orders)
+
+- Não permitir a criação de pedido para cliente inativo  
+- Não permitir pedido sem itens  
+- Não permitir item com quantidade igual a zero  
+
+### Regras de permissão (Profiles)
+
+- Usuários com perfil operador não podem ativar ou inativar clientes  
+- A execução de ações administrativas é restrita a perfis com permissão adequada  
+
+###  Objetivo
+
+Esses testes garantem a integridade das regras de domínio e controle de acesso em nível de serviço, reduzindo dependência de validações na camada de interface e prevenindo execuções indevidas no sistema.
 ### Pontos de melhoria com mais tempo
 
 Com mais tempo, eu finalizaria algumas pendências do front e refinaria a experiência geral da aplicação.
@@ -182,4 +201,8 @@ Também uso IA para coisas mais repetitivas, como seeds e pequenos ajustes de c�
 
 No geral, ela entra mais como um acelerador de produtividade do que como substituição do desenvolvimento.
 
+
+### Tempo gasto
+
+- Aproximadamente 16 horas.
 
