@@ -100,23 +100,6 @@ services:
       - frontend
     ports:
       - "3000:3000"
-  prisma-studio:
-    build:
-      context: ./api
-    container_name: logistic-order-studio
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - ./.env
-    environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-    ports:
-      - "5555:5555"
-    networks:
-      - backend
-    command: npx prisma studio
 networks:
   backend:
     internal: true
