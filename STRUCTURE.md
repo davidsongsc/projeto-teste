@@ -7,10 +7,7 @@
 ├── api
 │   ├── prisma
 │   │   ├── migrations
-│   │   │   ├── 20260629070341_migration_initial
-│   │   │   │   └── migration.sql
-│   │   │   └── 20260629131208_migration_test_update_models
-│   │   │       └── migration.sql
+│   │   ├── prisma.config.ts
 │   │   ├── schema.prisma
 │   │   └── seed.ts
 │   ├── src
@@ -65,12 +62,15 @@
 │   │   │   └── user.service.ts
 │   │   ├── app.ts
 │   │   └── index.ts
+│   ├── .dockerignore
 │   ├── .env
 │   ├── .gitignore
 │   ├── .npmrc
+│   ├── .tscaliasrc
 │   ├── Dockerfile
 │   ├── package.json
 │   ├── pnpm-lock.yaml
+│   ├── pnpm-workspace.yaml
 │   ├── prisma.config.ts
 │   ├── tsconfig.json
 │   └── vitest.config.ts
@@ -221,6 +221,7 @@
 ├── .dockerignore
 ├── .env
 ├── docker-compose.yml
+├── package-lock.json
 ├── README.md
 ├── STRUCTURE.md
 └── structure.py

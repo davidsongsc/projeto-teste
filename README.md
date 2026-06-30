@@ -63,8 +63,10 @@ cd projeto-teste
 ```
 
 ### 3. Configuração de Variáveis de Ambiente
-projeto-teste/api/.env
-- Certifique-se de **criar um arquivo** (__.env__) na pasta api do  **.env.exemple**, exemplo:
+
+#### projeto-teste/api/.env
+#### projeto-teste/.env
+- Certifique-se de **criar um arquivo** (__.env__) em cada pasta api do  **.env.exemple**, exemplo:
 
 ```
 # Configurações do Banco de Dados
@@ -96,26 +98,12 @@ NEXT_PUBLIC_API_URL=http://localhost:3030/api
 Com tudo pronto, suba os containers da aplicação (incluindo o banco de dados e o Redis):
 ```
 # Subir os serviços em background
+docker-compose build
 docker-compose up -d
 ```
 Após subir os containers, verifique se tudo está rodando corretamente com o comando:
 ```
 docker-compose ps
-```
-Caso a migração Automatica não funcione. passos __6, 7 e 8__
-### 6. PrismaClient
-Necessário para gerar a base do schema.prisma
-```
-npx prisma generate
-```
-### 7. Migração com prisma
-```
-npx prisma migrate dev --name initial_schema
-```
-
-### 8. Seed inicial
-```
-npx prisma db seed
 ```
 ### Projeto Link
 Acesse para ver o projeto.
