@@ -158,6 +158,31 @@ Além disso, foram utilizadas algumas bibliotecas auxiliares para apoiar seguran
 
 A abordagem adotada buscou manter o projeto simples, alinhado ao escopo proposto, ao mesmo tempo em que aplicou boas práticas de segurança e organização.
 
+                +----------------+
+                |      web       |
+                | Next.js        |
+                +-------+--------+
+                        |
+                        | HTTP
+                        |
+                +-------v--------+
+                |      api       |
+                | Node/Express   |
+                +---+---------+--+
+                    |         |
+         PostgreSQL |         | Redis
+                    |         |
+          +---------v-+     +-v---------+
+          |    db     |     |   redis   |
+          +-----------+     +-----------+
+
+               ^
+               |
+        prisma migrate
+               |
+        +------v------+
+        |   migrate   |
+        +-------------+
 ## Testes de Regras de Negócio e Permissões
 
 Foram implementados testes unitários com foco na validação de regras de negócio do módulo de pedidos e controle de acesso baseado em perfil de usuário.
@@ -204,7 +229,7 @@ No geral, ela entra mais como um acelerador de produtividade do que como substit
 
 ### Tempo gasto
 
-- Aproximadamente 16 horas.
+- Aproximadamente 20 horas.
 
 
 
