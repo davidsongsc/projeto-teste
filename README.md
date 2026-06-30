@@ -108,8 +108,16 @@ docker exec -u root -it logistic-order-api npx prisma generate
 docker exec -u root -it logistic-order-api sh -c 'npx prisma migrate dev --name migracao_inicial --url "$DATABASE_URL"'
 docker exec -u root -it logistic-order-api npx tsx prisma/seed.ts
 ```
-#### 
+#### USUARIO TESTE 1
 ```
+admin@loja.com
+senha123
+```
+
+#### USUARIO TESTE 2
+```
+operador@loja.com
+senha123
 ```
 
 ### Projeto Link
