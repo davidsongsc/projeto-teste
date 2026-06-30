@@ -3,12 +3,13 @@ import { OrderService } from '@/services/order.service';
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
-// Mock do módulo do Prisma
+// Mock do prisma incluindo $transaction
 vi.mock('@/lib/prisma', () => ({
     prisma: {
         user: { findUnique: vi.fn() },
         customer: { findUnique: vi.fn() },
-        order: { create: vi.fn() }
+        order: { create: vi.fn() },
+        $transaction: vi.fn((callback) => callback(prisma)) // Executa o callback passando o próprio prisma como "tx"
     }
 }));
 
@@ -25,7 +26,7 @@ describe('OrderService - Create Order (Validações)', () => {
             userId: 'user-1',
             customerId: 'cust-1',
             totalPrice: 100,
-            status: 'pending',
+            status: 'DRAFT',
             items: [] 
         };
 
@@ -38,12 +39,12 @@ describe('OrderService - Create Order (Validações)', () => {
             userId: 'user-1',
             customerId: 'cust-1',
             totalPrice: 0,
-            status: 'pending',
-            items: [{ productId: 'prod-1', price: 10, count: 1 }]
+            status: 'DRAFT',
+            items: [{ name: 'Item 1', price: 10, count: 1 }]
         };
 
         await expect(orderService.create(orderData as any))
-            .rejects.toThrow('O valor total do pedido deve ser maior que zero.');
+            .rejects.toThrow('O valor total deve ser maior que zero.');
     });
 
     it('deve impedir a criação de pedido para cliente inativo', async () => {
@@ -54,12 +55,12 @@ describe('OrderService - Create Order (Validações)', () => {
             userId: 'user-1',
             customerId: 'cust-1',
             totalPrice: 100,
-            status: 'pending',
-            items: [{ productId: 'prod-1', price: 100, count: 1 }]
+            status: 'DRAFT',
+            items: [{ name: 'Item 1', price: 100, count: 1 }]
         };
 
         await expect(orderService.create(orderData as any))
-            .rejects.toThrow('Não é possível criar um pedido para um cliente inativo.');
+            .rejects.toThrow('Cliente inativo ou não encontrado.');
     });
 
     it('deve criar o pedido com sucesso se todas as validações passarem', async () => {
@@ -71,8 +72,8 @@ describe('OrderService - Create Order (Validações)', () => {
             userId: 'user-1',
             customerId: 'cust-1',
             totalPrice: 100,
-            status: 'pending',
-            items: [{ productId: 'prod-1', price: 100, count: 1 }]
+            status: 'DRAFT',
+            items: [{ name: 'Item 1', price: 100, count: 1 }]
         };
 
         const result = await orderService.create(orderData as any);

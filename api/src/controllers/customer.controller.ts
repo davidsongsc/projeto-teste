@@ -4,66 +4,68 @@ import { CustomerService } from '../services/customer.service'
 const service = new CustomerService()
 
 export class CustomerController {
-    async index(req: Request, res: Response) {
-        try {
-            const { page, limit, search, status } = req.query;
+  private getId(req: Request): string {
+    const id = req.params.id;
+    return Array.isArray(id) ? id[0] : id;
+  }
 
-            const result = await service.findAll({
-                page: page ? Number(page) : undefined,
-                limit: limit ? Number(limit) : undefined,
-                search: search as string,
-                status: status === 'true' ? true : status === 'false' ? false : undefined
-            });
+  index = async (req: Request, res: Response) => {
+    try {
+      const { page, limit, search, status } = req.query;
 
-            return res.status(200).json(result);
-        } catch (error) {
-            return res.status(500).json({ message: 'Erro ao listar clientes.' });
-        }
+      const result = await service.findAll({
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        search: search as string,
+        status: status === 'true' ? true : status === 'false' ? false : undefined
+      });
+
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao listar clientes.' });
     }
+  };
 
-    async show(req: Request, res: Response) {
-        try {
-            const { id } = req.params
-            const customer = await service.findById(id)
+  show = async (req: Request, res: Response) => {
+    try {
+      const customer = await service.findById(this.getId(req))
 
-            if (!customer) {
-                return res.status(404).json({ message: 'Cliente não encontrado.' })
-            }
+      if (!customer) {
+        return res.status(404).json({ message: 'Cliente não encontrado.' })
+      }
 
-            return res.status(200).json(customer) 
-        } catch (error) {
-            return res.status(500).json({ message: 'Erro ao buscar cliente.' })
-        }
+      return res.status(200).json(customer)
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar cliente.' })
     }
+  };
 
-    async store(req: Request, res: Response) {
-        try {
-            const customer = await service.create(req.body)
-            return res.status(201).json(customer) 
-        } catch (error) {
-            return res.status(400).json({ message: 'Erro ao criar cliente.' })
-        }
+  store = async (req: Request, res: Response) => {
+    try {
+      const customer = await service.create(req.body)
+      return res.status(201).json(customer)
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao criar cliente.' })
     }
+  };
 
-    async update(req: Request, res: Response) {
-        try {
-            const { id } = req.params
-            const customer = await service.update(id, req.body)
+  update = async (req: Request, res: Response) => {
+    try {
+      const customer = await service.update(this.getId(req), req.body)
 
-            return res.status(200).json(customer) 
-        } catch (error) {
-            return res.status(400).json({ message: 'Erro ao atualizar cliente.' })
-        }
+      return res.status(200).json(customer)
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao atualizar cliente.' })
     }
+  };
 
-    async delete(req: Request, res: Response) {
-        try {
-            const { id } = req.params
-            await service.delete(id)
+  delete = async (req: Request, res: Response) => {
+    try {
+      await service.delete(this.getId(req))
 
-            return res.sendStatus(204)
-        } catch (error) {
-            return res.status(400).json({ message: 'Erro ao remover cliente.' })
-        }
+      return res.sendStatus(204)
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao remover cliente.' })
     }
+  };
 }
