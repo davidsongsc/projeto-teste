@@ -1,6 +1,6 @@
 import { notification } from '@/src/components/Notification/notification';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function api<T = any>(
     endpoint: string,
