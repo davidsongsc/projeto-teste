@@ -39,9 +39,10 @@ export class UserService {
         take: limit,
         orderBy: { created_at: 'desc' },
         include: { profile: true },
+        omit: { password: true },
       }),
     ]);
-
+    
     return {
       page,
       total_pages: Math.ceil(totalItems / limit),
@@ -57,6 +58,7 @@ export class UserService {
         profile: {
           select: { id: true, name: true, role: true },
         },
+        omit: { password: true },
       },
     });
   }
