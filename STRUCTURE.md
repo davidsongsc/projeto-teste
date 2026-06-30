@@ -212,7 +212,6 @@
 │   ├── CLAUDE.md
 │   ├── Dockerfile
 │   ├── eslint.config.mjs
-│   ├── next-env.d.ts
 │   ├── next.config.ts
 │   ├── package.json
 │   ├── pnpm-lock.yaml
@@ -220,6 +219,7 @@
 │   ├── README.md
 │   └── tsconfig.json
 ├── .dockerignore
+├── .env
 ├── docker-compose.yml
 ├── README.md
 ├── STRUCTURE.md

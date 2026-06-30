@@ -29,8 +29,14 @@ export const ensureAuthenticated = async (req: Request, res: Response, next: Nex
       return res.status(401).json({ success: false, message: 'Usuário não encontrado.' });
     }
 
-    // Injetamos o objeto completo do usuário com perfil/permissões
-    req.user = { data: user };
+    req.user = {
+      data: {
+        id: user.id,
+        profile: user.profile ? {
+          permissions: user.profile.permissions.map(p => ({ key: p.key }))
+        } : null 
+      }
+    };
 
     next();
   } catch (err) {

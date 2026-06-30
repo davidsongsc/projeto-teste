@@ -1,9 +1,9 @@
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
-RUN corepack enable
-RUN pnpm config set allow-builds "prisma,@prisma/engines,@scarf/scarf,esbuild"
+RUN corepack enable \
+    && corepack prepare pnpm@10.12.4 --activate
 
 COPY package.json pnpm-lock.yaml ./
 
@@ -11,11 +11,15 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN pnpm build
 
 
-FROM node:20-slim AS runner
-
+FROM node:22-slim AS runner
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 ENV NODE_ENV=production
 
 WORKDIR /app

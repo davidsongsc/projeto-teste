@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, OrderStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/errors/AppError'
 
@@ -8,6 +8,7 @@ interface CreateOrderDTO {
   totalPrice: Prisma.Decimal | number | string;
   status: string;
   items: {
+    name: string;
     productId: string;
     price: Prisma.Decimal | number | string;
     count: number;
@@ -29,7 +30,7 @@ export class OrderService {
     const where: Prisma.OrderWhereInput = {}
 
     if (params?.status) {
-      where.status = params.status
+      where.status = params.status as OrderStatus
     }
 
     if (params?.search) {
@@ -82,7 +83,7 @@ export class OrderService {
             select: {
               id: true,
               name: true,
-              
+
 
             }
           },
@@ -162,17 +163,20 @@ export class OrderService {
     // 5. Persistência
     return prisma.order.create({
       data: {
+        
         userId: data.userId,
         customerId: data.customerId,
         totalPrice: data.totalPrice,
-        status: data.status,
+        status: data.status as OrderStatus,
         items: {
           create: data.items.map(item => ({
+            name: item.name,
             product: { connect: { id: item.productId } },
             price: item.price,
             count: item.count,
             description: item.description,
             total: Number(item.price) * item.count,
+            
           })),
         },
       },
@@ -190,9 +194,7 @@ export class OrderService {
   ) {
     if (data.customerId) {
       const customer = await prisma.customer.findUnique({
-        where: {
-          id: data.customerId
-        }
+        where: { id: data.customerId }
       });
 
       if (!customer) {
@@ -200,7 +202,18 @@ export class OrderService {
       }
     }
 
-    return prisma.order.update({ where: { id }, data })
+    // Construa o objeto update explicitamente para evitar erros de tipagem do Prisma
+    const updateData: Prisma.OrderUpdateInput = {
+      user: data.userId ? { connect: { id: data.userId } } : undefined,
+      customer: data.customerId ? { connect: { id: data.customerId } } : undefined,
+      totalPrice: data.totalPrice,
+      status: data.status as OrderStatus
+    };
+
+    return prisma.order.update({
+      where: { id },
+      data: updateData
+    });
   }
 
   async delete(id: string) {

@@ -1,3 +1,9 @@
+enum OrderStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -60,7 +66,7 @@ model Order {
 
   items      Item[]
   totalPrice Decimal @db.Decimal(10, 2)
-  status     String // "DRAFT", "CONFIRMED", "CANCELLED"
+  status     OrderStatus @default(DRAFT)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

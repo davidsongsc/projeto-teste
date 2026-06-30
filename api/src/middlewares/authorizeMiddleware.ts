@@ -3,20 +3,20 @@ import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
 export const authorizeMiddleware = async (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.user; 
-  
+  const { id } = req.user.data;
+
   console.log(`[DEBUG] Autorizando usuário ID: ${id} na rota: ${req.method} ${req.originalUrl}`);
 
   const user = await prisma.user.findUnique({
     where: { id },
-    include: { 
-      profile: { 
-        include: { permissions: true } 
-      } 
+    include: {
+      profile: {
+        include: { permissions: true }
+      }
     }
   });
 
@@ -27,11 +27,13 @@ export const authorizeMiddleware = async (
 
   // Debug das permissões carregadas
   const permissions = user.profile?.permissions || [];
-  console.log(`[DEBUG] Permissões carregadas para o perfil '${user.profile?.name}':`, 
+  console.log(`[DEBUG] Permissões carregadas para o perfil '${user.profile?.name}':`,
     permissions.map(p => p.key)
   );
 
-  req.user.data = user; 
-
+  req.user.data = {
+    ...user,
+    profile: user.profile!
+  };
   next();
 };

@@ -12,13 +12,13 @@
   },
   "license": "ISC",
   "author": "Davidson George",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
+    "build": "tsc --skipLibCheck && tsc-alias",
+    "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed"
@@ -41,6 +41,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.6",
     "@types/helmet": "^0.0.48",
     "@types/jsonwebtoken": "^9.0.10",
@@ -51,6 +52,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "prisma": "^7.8.0",
     "tsconfig-paths": "^4.2.0",
+    "tsc-alias": "^1.8.8",
     "tsx": "^4.22.4",
     "typescript": "5.9",
     "vitest": "^4.1.9"

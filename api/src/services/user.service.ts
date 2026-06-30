@@ -121,7 +121,11 @@ export class UserService {
       name: data.name,
       email: data.email,
       status: data.status,
-      profileId: data.profileId,
+      profile: {
+        connect: {
+          id: data.profileId
+        }
+      }
     };
 
     if (data.password) {

@@ -82,7 +82,7 @@ REDIS_PORT=6379
 REDIS_URL=redis://redis:6379
 PORT=3030
 
-JWT_SECRET=sUperSecret123
+JWT_SECRET=OdyeqJAkdFq4WuXhCAK1B42SNxETSnqzavZQonmlTkc
 
 ```
 ### 4. Configuração de Variáveis de Ambiente FrontEnd

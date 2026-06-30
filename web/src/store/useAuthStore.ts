@@ -10,19 +10,19 @@ interface Permission {
 interface AuthState {
   user: any | null;
   token: string | null;
-  permissions: string[]; 
+  permissions: string[];
   isLoginModalOpen: boolean;
   login: (data: { token: string; user: any }) => void;
   logout: () => void;
   setLoginModalOpen: (open: boolean) => void;
-  hasPermission: (key: string) => boolean; 
+  hasPermission: (key: string) => boolean;
   isLoadingAuth: boolean;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set: any, get: any) => ({
   user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('@LogisticOrder:user') || 'null') : null,
   token: typeof window !== 'undefined' ? localStorage.getItem('@LogisticOrder:token') : null,
-  
+
   permissions: (() => {
     const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('@LogisticOrder:user') || 'null') : null;
     return user?.profile?.permissions?.map((p: Permission) => p.key) || [];
@@ -31,13 +31,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoginModalOpen: false,
   isLoadingAuth: false,
 
-  login: (data) => {
+  login: (data: { token: string; user: any }) => {
     localStorage.setItem('@LogisticOrder:token', data.token);
     localStorage.setItem('@LogisticOrder:user', JSON.stringify(data.user));
-    
-    // Mapeia apenas as chaves (ex: 'customer:read', 'order:create')
+
+    console.log("Dados do usuário recebidos no login:", data.user);
+
     const permissions = data.user?.profile?.permissions?.map((p: Permission) => p.key) || [];
-    
     set({ user: data.user, token: data.token, permissions, isLoginModalOpen: false });
   },
 
@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     window.location.href = '/';
   },
 
-  setLoginModalOpen: (open) => set({ isLoginModalOpen: open }),
+  setLoginModalOpen: (open: boolean) => set({ isLoginModalOpen: open }),
 
   hasPermission: (key: string) => get().permissions.includes(key),
 }));

@@ -3,8 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { PERMISSIONS } from '@/config/permissions';
 
 export class CollaboratorService {
-  
+
   async findAll(
+    user: any,
     params?: {
       page?: number
       limit?: number
@@ -84,8 +85,7 @@ export class CollaboratorService {
     }
   }
 
-  async findById(
-    id: string) {
+  async findById(user: any, id: string) {
     return prisma.collaborator.findUnique({
       where: { id },
       include: {
@@ -104,10 +104,11 @@ export class CollaboratorService {
           }
         }
       }
-    })
+    });
   }
 
   async create(
+    user: any,
     data: {
       name: string
       profileId: string
@@ -119,6 +120,7 @@ export class CollaboratorService {
   }
 
   async updateStatus(
+    user: any,
     id: string,
     status: boolean) {
     return prisma.collaborator.update({
@@ -132,6 +134,7 @@ export class CollaboratorService {
   }
 
   async update(
+    user: any,
     id: string,
     data: {
       name?: string
@@ -147,6 +150,7 @@ export class CollaboratorService {
   }
 
   async delete(
+    user: any,
     id: string) {
     return prisma.collaborator.delete({
       where: { id }

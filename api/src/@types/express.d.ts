@@ -3,9 +3,10 @@ declare namespace Express {
     user: {
       data: {
         id: string;
+        // Mude aqui para permitir null
         profile: {
-          permissions: Array<{ key: string }>;
-        };
+          permissions: { key: string }[];
+        } | null; 
       };
     };
   }

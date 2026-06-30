@@ -1,5 +1,6 @@
+import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import { compare } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
@@ -32,8 +33,13 @@ export class AuthService {
 
     // 2. Comparar a senha do body com o HASH salvo no banco
     const passwordMatch = await compare(password, user.password);
-
-   if (!passwordMatch) {
+    if (!passwordMatch) {
+      console.log('DEBUG [Login]: Tentativa com email:', email);
+      console.log('DEBUG [Login]: Senha fornecida (hash):', await hash(password, 8));
+      console.log('DEBUG [Login]: Hash no banco:', user.password);
+      throw new AppError('Usuário ou senha incorretos.', 401);
+    }
+    if (!passwordMatch) {
       throw new AppError('Usuário ou senha incorretos.', 401);
     }
 
@@ -55,7 +61,7 @@ export class AuthService {
         email: user.email,
         profile: {
           ...user.profile,
-          permissions: user.profile?.permissions 
+          permissions: user.profile?.permissions
         }
       }
     };

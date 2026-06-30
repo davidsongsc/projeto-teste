@@ -36,55 +36,61 @@ services:
         max-file: "3"
     networks:
       - backend
-
   migrate:
     build:
       context: ./api
+      target: builder
+      args:
+        BUILD_APP: "false"
     container_name: logistic-order-migrate
     restart: "no"
     depends_on:
       db:
         condition: service_healthy
     env_file:
-      - ./api/.env
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PNPM_PACKAGE_IMPORT_CONFIRM: "false"
     networks:
       - backend
-    command: npx prisma migrate deploy
-
+    command: sh -c "npx prisma migrate deploy"
   api:
     build:
       context: ./api
+      args:
+        BUILD_APP: "true"
     container_name: logistic-order-api
     restart: unless-stopped
     depends_on:
       migrate:
         condition: service_completed_successfully
     env_file:
-      - ./api/.env
+      - ./.env
+    ports:
+      - "3030:3030"
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      PORT: 3030
     networks:
       - backend
       - frontend
-    ports:
-      - "3030:3030"
 
   web:
     build:
       context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3030/api
     container_name: logistic-order-web
     restart: unless-stopped
     depends_on:
       - api
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3030
+      NEXT_PUBLIC_API_URL: http://localhost:3030/api
     logging:
       driver: "json-file"
       options:
@@ -94,7 +100,23 @@ services:
       - frontend
     ports:
       - "3000:3000"
-
+  prisma-studio:
+    build:
+      context: ./api
+    container_name: logistic-order-studio
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    ports:
+      - "5555:5555"
+    networks:
+      - backend
+    command: npx prisma studio
 networks:
   backend:
     internal: true
