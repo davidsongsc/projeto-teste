@@ -1,5 +1,6 @@
+import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import { compare } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/errors/AppError';
 
@@ -15,7 +16,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase().trim() },
       include: {
         profile: {
           include: {
@@ -33,7 +34,14 @@ export class AuthService {
     // 2. Comparar a senha do body com o HASH salvo no banco
     const passwordMatch = await compare(password, user.password);
 
-   if (!passwordMatch) {
+    if (!passwordMatch) {
+      // Isso vai te mostrar exatamente o que está acontecendo
+      console.log('DEBUG: Email buscado:', email);
+      console.log('DEBUG: Usuário encontrado no banco:', user.email);
+      console.log('DEBUG: Senha recebida (plain text):', password);
+      throw new AppError('Usuário ou senha incorretos.', 401);
+    }
+    if (!passwordMatch) {
       throw new AppError('Usuário ou senha incorretos.', 401);
     }
 
@@ -55,7 +63,7 @@ export class AuthService {
         email: user.email,
         profile: {
           ...user.profile,
-          permissions: user.profile?.permissions 
+          permissions: user.profile?.permissions
         }
       }
     };

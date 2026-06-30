@@ -63,8 +63,10 @@ cd projeto-teste
 ```
 
 ### 3. Configuração de Variáveis de Ambiente
-projeto-teste/api/.env
-- Certifique-se de **criar um arquivo** (__.env__) na pasta api do  **.env.exemple**, exemplo:
+
+#### projeto-teste/api/.env
+#### projeto-teste/.env
+- Certifique-se de **criar um arquivo** (__.env__) em cada pasta api do  **.env.exemple**, exemplo:
 
 ```
 # Configurações do Banco de Dados
@@ -82,7 +84,7 @@ REDIS_PORT=6379
 REDIS_URL=redis://redis:6379
 PORT=3030
 
-JWT_SECRET=sUperSecret123
+JWT_SECRET=OdyeqJAkdFq4WuXhCAK1B42SNxETSnqzavZQonmlTkc
 
 ```
 ### 4. Configuração de Variáveis de Ambiente FrontEnd
@@ -96,27 +98,20 @@ NEXT_PUBLIC_API_URL=http://localhost:3030/api
 Com tudo pronto, suba os containers da aplicação (incluindo o banco de dados e o Redis):
 ```
 # Subir os serviços em background
+docker-compose build
 docker-compose up -d
 ```
-Após subir os containers, verifique se tudo está rodando corretamente com o comando:
+Após subir os containers, talvez seja necessario rodar o generate do prisma :
+#### Migração caso não ocorra naturalmente
 ```
-docker-compose ps
+docker exec -u root -it logistic-order-api npx prisma generate
+docker exec -u root -it logistic-order-api sh -c 'npx prisma migrate dev --name migracao_inicial --url "$DATABASE_URL"'
+docker exec -u root -it logistic-order-api npx tsx prisma/seed.ts
 ```
-Caso a migração Automatica não funcione. passos __6, 7 e 8__
-### 6. PrismaClient
-Necessário para gerar a base do schema.prisma
+#### 
 ```
-npx prisma generate
-```
-### 7. Migração com prisma
-```
-npx prisma migrate dev --name initial_schema
 ```
 
-### 8. Seed inicial
-```
-npx prisma db seed
-```
 ### Projeto Link
 Acesse para ver o projeto.
 ```
@@ -183,6 +178,115 @@ A abordagem adotada buscou manter o projeto simples, alinhado ao escopo proposto
         +------v------+
         |   migrate   |
         +-------------+
+
+# API Routes
+
+## Authentication
+
+| Method | Route           | Description                                  |
+| ------ | --------------- | -------------------------------------------- |
+| POST   | `/auth/login`   | Authenticate user and generate access token. |
+| POST   | `/auth/refresh` | Refresh the access token.                    |
+| POST   | `/auth/logout`  | Invalidate the current session/token.        |
+| GET    | `/auth/me`      | Return authenticated user information.       |
+
+---
+
+## Users
+
+| Method | Route        | Description                             |
+| ------ | ------------ | --------------------------------------- |
+| GET    | `/users`     | List users with pagination and filters. |
+| GET    | `/users/:id` | Retrieve a specific user by ID.         |
+| POST   | `/users`     | Create a new user.                      |
+| PUT    | `/users/:id` | Update an existing user.                |
+| DELETE | `/users/:id` | Remove a user.                          |
+
+---
+
+## Profiles
+
+| Method | Route           | Description               |
+| ------ | --------------- | ------------------------- |
+| GET    | `/profiles`     | List profiles.            |
+| GET    | `/profiles/:id` | Retrieve a profile by ID. |
+| POST   | `/profiles`     | Create a new profile.     |
+| PUT    | `/profiles/:id` | Update a profile.         |
+| DELETE | `/profiles/:id` | Remove a profile.         |
+
+---
+
+## Permissions
+
+| Method | Route              | Description                  |
+| ------ | ------------------ | ---------------------------- |
+| GET    | `/permissions`     | List permissions.            |
+| GET    | `/permissions/:id` | Retrieve a permission by ID. |
+| POST   | `/permissions`     | Create a permission.         |
+| PUT    | `/permissions/:id` | Update a permission.         |
+| DELETE | `/permissions/:id` | Remove a permission.         |
+
+---
+
+## Collaborators
+
+| Method | Route                       | Description                      |
+| ------ | --------------------------- | -------------------------------- |
+| GET    | `/collaborators`            | List collaborators.              |
+| GET    | `/collaborators/:id`        | Retrieve a collaborator by ID.   |
+| POST   | `/collaborators`            | Create a collaborator.           |
+| PUT    | `/collaborators/:id`        | Update collaborator information. |
+| PATCH  | `/collaborators/:id/status` | Update collaborator status.      |
+| DELETE | `/collaborators/:id`        | Remove a collaborator.           |
+
+---
+
+## Customers
+
+| Method | Route            | Description                  |
+| ------ | ---------------- | ---------------------------- |
+| GET    | `/customers`     | List customers.              |
+| GET    | `/customers/:id` | Retrieve a customer by ID.   |
+| POST   | `/customers`     | Create a customer.           |
+| PUT    | `/customers/:id` | Update customer information. |
+| DELETE | `/customers/:id` | Remove a customer.           |
+
+---
+
+## Products
+
+| Method | Route           | Description                 |
+| ------ | --------------- | --------------------------- |
+| GET    | `/products`     | List products.              |
+| GET    | `/products/:id` | Retrieve a product by ID.   |
+| POST   | `/products`     | Create a product.           |
+| PUT    | `/products/:id` | Update product information. |
+| DELETE | `/products/:id` | Remove a product.           |
+
+---
+
+## Orders
+
+| Method | Route         | Description                              |
+| ------ | ------------- | ---------------------------------------- |
+| GET    | `/orders`     | List orders with pagination and filters. |
+| GET    | `/orders/:id` | Retrieve an order by ID.                 |
+| POST   | `/orders`     | Create a new order.                      |
+| PUT    | `/orders/:id` | Update an existing order.                |
+| DELETE | `/orders/:id` | Remove an order.                         |
+
+---
+
+## Items
+
+| Method | Route        | Description             |
+| ------ | ------------ | ----------------------- |
+| GET    | `/items`     | List order items.       |
+| GET    | `/items/:id` | Retrieve an item by ID. |
+| POST   | `/items`     | Create an item.         |
+| PUT    | `/items/:id` | Update an item.         |
+| DELETE | `/items/:id` | Remove an item.         |
+
 ## Testes de Regras de Negócio e Permissões
 
 Foram implementados testes unitários com foco na validação de regras de negócio do módulo de pedidos e controle de acesso baseado em perfil de usuário.

@@ -57,7 +57,7 @@ export class CollaboratorService {
         profile: { select: { id: true, name: true, role: true } },
         user: { select: { id: true, name: true, email: true } }
       }
-    })
+    });
   }
 
   async create(user: any, data: { name: string; profileId: string; userId: string }) {

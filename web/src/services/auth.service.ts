@@ -1,12 +1,18 @@
 import { api } from '@/src/services/api';
-
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+interface AuthResponse {
+  token: string;
+  user: any;
+}
 export const authService = {
-  async login(credentials: { email: string; password: string }) {
-    const response = await api('/auth/login', {
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    return await api<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    return response;
   },
 
   async logout() {
