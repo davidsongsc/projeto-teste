@@ -7,12 +7,14 @@ export const authorizeMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.user.data;
+  const userId = (req.user as any)?.id;
 
-  console.log(`[DEBUG] Autorizando usuário ID: ${id} na rota: ${req.method} ${req.originalUrl}`);
+  if (!userId) {
+    throw new AppError('Usuário não autenticado.', 401);
+  }
 
   const user = await prisma.user.findUnique({
-    where: { id },
+    where: { id: userId },
     include: {
       profile: {
         include: { permissions: true }
@@ -21,19 +23,18 @@ export const authorizeMiddleware = async (
   });
 
   if (!user) {
-    console.error(`[DEBUG] Erro: Usuário ${id} não encontrado no banco.`);
     throw new AppError('Usuário não encontrado no banco de dados.', 401);
   }
 
-  // Debug das permissões carregadas
-  const permissions = user.profile?.permissions || [];
-  console.log(`[DEBUG] Permissões carregadas para o perfil '${user.profile?.name}':`,
-    permissions.map(p => p.key)
-  );
-
-  req.user.data = {
-    ...user,
-    profile: user.profile!
+  req.user = {
+    ...req.user,
+    data: {
+      id: user.id,
+      profile: {
+        permissions: user.profile?.permissions || []
+      }
+    }
   };
+
   next();
 };

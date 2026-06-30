@@ -5,60 +5,35 @@ import { AppError } from '@/errors/AppError'
 interface CreateOrderDTO {
   userId: string;
   customerId: string;
-  totalPrice: Prisma.Decimal | number | string;
-  status: string;
+  totalPrice: number | string;
+  status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
   items: {
     name: string;
-    productId: string;
-    price: Prisma.Decimal | number | string;
+    price: number | string;
     count: number;
-    description?: string
-    total?: Prisma.Decimal | number | string
+    description?: string;
   }[];
 }
+
 export class OrderService {
   async findAll(params?: {
-    page?: number
-    limit?: number
-    search?: string
-    status?: string
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: any;
   }) {
-    const page = Number(params?.page || 1)
-    const limit = Number(params?.limit || 10)
-    const skip = (page - 1) * limit
+    const page = Number(params?.page || 1);
+    const limit = Number(params?.limit || 10);
+    const skip = (page - 1) * limit;
 
-    const where: Prisma.OrderWhereInput = {}
-
-    if (params?.status) {
-      where.status = params.status as OrderStatus
-    }
+    const where: Prisma.OrderWhereInput = {};
+    if (params?.status) where.status = params.status;
 
     if (params?.search) {
       where.OR = [
-        {
-          user: {
-            name: {
-              contains: params.search,
-              mode: 'insensitive'
-            }
-          }
-        },
-        {
-          user: {
-            email: {
-              contains: params.search,
-              mode: 'insensitive'
-            }
-          }
-        },
-        {
-          customer: {
-            name: {
-              contains: params.search,
-              mode: 'insensitive'
-            }
-          }
-        }
+        { user: { name: { contains: params.search, mode: 'insensitive' } } },
+        { user: { email: { contains: params.search, mode: 'insensitive' } } },
+        { customer: { name: { contains: params.search, mode: 'insensitive' } } }
       ];
     }
 
@@ -68,157 +43,85 @@ export class OrderService {
         where,
         skip,
         take: limit,
-        orderBy: {
-          created_at: 'desc'
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          },
-          customer: {
-            select: {
-              id: true,
-              name: true,
-
-
-            }
-          },
-          items: true
+        orderBy: { created_at: 'desc' },
+        include: { 
+          user: { select: { id: true, name: true, email: true } },
+          customer: { select: { id: true, name: true, document: true, status: true } },
+          items: true 
         }
       })
-    ])
+    ]);
 
     return {
       page,
       total_pages: Math.ceil(totalItems / limit),
       total_items: totalItems,
       results
-    }
+    };
   }
 
   async findById(id: string) {
     return prisma.order.findUnique({
       where: { id },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            document: true,
-            status: true
-          }
-        },
+        user: { select: { id: true, name: true, email: true } },
+        customer: { select: { id: true, name: true, email: true, document: true, status: true } },
         items: true
       }
-    })
+    });
   }
 
   async create(data: CreateOrderDTO) {
-    // 1. Validação de Itens
-    if (!data.items || data.items.length === 0) {
-      throw new AppError('Não é possível criar um pedido sem itens.');
-    }
+    if (!data.items?.length) throw new AppError('Não é possível criar um pedido sem itens.');
+    if (Number(data.totalPrice) <= 0) throw new AppError('O valor total deve ser maior que zero.');
 
-    // 2. Validação de Valor Total (não pode ser 0 ou negativo)
-    if (Number(data.totalPrice) <= 0) {
-      throw new AppError('O valor total do pedido deve ser maior que zero.');
-    }
+    return await prisma.$transaction(async (tx) => {
+      const [user, customer] = await Promise.all([
+        tx.user.findUnique({ where: { id: data.userId }, select: { status: true } }),
+        tx.customer.findUnique({ where: { id: data.customerId }, select: { status: true } })
+      ]);
 
-    // 3. Validação de Usuário (mantendo sua lógica atual)
-    const user = await prisma.user.findUnique({
-      where: { id: data.userId },
-      select: { status: true }
-    });
+      if (!user?.status) throw new AppError('Usuário inativo ou não encontrado.');
+      if (!customer?.status) throw new AppError('Cliente inativo ou não encontrado.');
 
-    if (!user || user.status !== true) {
-      throw new AppError('Não é possível criar um pedido para um usuário inativo.');
-    }
-
-    // 4. Nova Validação: Status do Cliente
-    const customer = await prisma.customer.findUnique({
-      where: { id: data.customerId },
-      select: { status: true }
-    });
-
-    if (!customer) {
-      throw new AppError('Cliente não encontrado.');
-    }
-
-    if (customer.status !== true) {
-      throw new AppError('Não é possível criar um pedido para um cliente inativo.');
-    }
-
-    // 5. Persistência
-    return prisma.order.create({
-      data: {
-        
-        userId: data.userId,
-        customerId: data.customerId,
-        totalPrice: data.totalPrice,
-        status: data.status as OrderStatus,
-        items: {
-          create: data.items.map(item => ({
-            name: item.name,
-            product: { connect: { id: item.productId } },
-            price: item.price,
-            count: item.count,
-            description: item.description,
-            total: Number(item.price) * item.count,
-            
-          })),
-        },
-      },
+      return await tx.order.create({
+        data: {
+          userId: data.userId,
+          customerId: data.customerId,
+          totalPrice: data.totalPrice,
+          status: data.status,
+          items: {
+            create: data.items.map(item => ({
+              name: item.name,
+              price: item.price,
+              count: item.count,
+              description: item.description,
+              total: Number(item.price) * item.count
+            }))
+          }
+        }
+      });
     });
   }
 
-  async update(
-    id: string,
-    data: {
-      userId?: string;
-      customerId?: string;
-      totalPrice?: Prisma.Decimal | number | string;
-      status?: string;
-    }
-  ) {
+  async update(id: string, data: {
+    userId?: string;
+    customerId?: string;
+    totalPrice?: number | string;
+    status?: any;
+  }) {
     if (data.customerId) {
-      const customer = await prisma.customer.findUnique({
-        where: { id: data.customerId }
-      });
-
-      if (!customer) {
-        throw new AppError('Cliente não encontrado.');
-      }
+      const customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
+      if (!customer) throw new AppError('Cliente não encontrado.');
     }
 
-    // Construa o objeto update explicitamente para evitar erros de tipagem do Prisma
-    const updateData: Prisma.OrderUpdateInput = {
-      user: data.userId ? { connect: { id: data.userId } } : undefined,
-      customer: data.customerId ? { connect: { id: data.customerId } } : undefined,
-      totalPrice: data.totalPrice,
-      status: data.status as OrderStatus
-    };
-
-    return prisma.order.update({
-      where: { id },
-      data: updateData
+    return prisma.order.update({ 
+      where: { id }, 
+      data 
     });
   }
 
   async delete(id: string) {
-    return prisma.order.delete({
-      where: { id }
-    })
+    return prisma.order.delete({ where: { id } });
   }
 }

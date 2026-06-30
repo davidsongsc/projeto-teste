@@ -1,9 +1,7 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { PERMISSIONS } from '@/config/permissions';
 
 export class CollaboratorService {
-
   async findAll(
     user: any,
     params?: {
@@ -24,28 +22,9 @@ export class CollaboratorService {
 
     if (params?.search) {
       where.OR = [
-        {
-          name: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
-        },
-        {
-          profile: {
-            name: {
-              contains: params.search,
-              mode: 'insensitive'
-            }
-          }
-        },
-        {
-          user: {
-            name: {
-              contains: params.search,
-              mode: 'insensitive'
-            }
-          }
-        }
+        { name: { contains: params.search, mode: 'insensitive' } },
+        { profile: { name: { contains: params.search, mode: 'insensitive' } } },
+        { user: { name: { contains: params.search, mode: 'insensitive' } } }
       ]
     }
 
@@ -55,24 +34,10 @@ export class CollaboratorService {
         where,
         skip,
         take: limit,
-        orderBy: {
-          created_at: 'desc'
-        },
+        orderBy: { created_at: 'desc' },
         include: {
-          profile: {
-            select: {
-              id: true,
-              name: true,
-              role: true
-            }
-          },
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          }
+          profile: { select: { id: true, name: true, role: true } },
+          user: { select: { id: true, name: true, email: true } }
         }
       })
     ])
@@ -89,59 +54,27 @@ export class CollaboratorService {
     return prisma.collaborator.findUnique({
       where: { id },
       include: {
-        profile: {
-          select: {
-            id: true,
-            name: true,
-            role: true
-          }
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+        profile: { select: { id: true, name: true, role: true } },
+        user: { select: { id: true, name: true, email: true } }
       }
     });
   }
 
-  async create(
-    user: any,
-    data: {
-      name: string
-      profileId: string
-      userId: string
-    }) {
-    return prisma.collaborator.create({
-      data
-    })
+  async create(user: any, data: { name: string; profileId: string; userId: string }) {
+    return prisma.collaborator.create({ data })
   }
 
-  async updateStatus(
-    user: any,
-    id: string,
-    status: boolean) {
+  async updateStatus(user: any, id: string, status: boolean) {
     return prisma.collaborator.update({
-      where: {
-        id
-      },
-      data: {
-        status
-      }
+      where: { id },
+      data: { status }
     })
   }
 
   async update(
     user: any,
     id: string,
-    data: {
-      name?: string
-      profileId?: string
-      userId?: string
-      status?: boolean
-    }
+    data: { name?: string; profileId?: string; userId?: string; status?: boolean }
   ) {
     return prisma.collaborator.update({
       where: { id },
@@ -149,9 +82,7 @@ export class CollaboratorService {
     })
   }
 
-  async delete(
-    user: any,
-    id: string) {
+  async delete(user: any, id: string) {
     return prisma.collaborator.delete({
       where: { id }
     })

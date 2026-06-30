@@ -1,49 +1,34 @@
 import { hash } from 'bcryptjs';
-import { Prisma } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 export class UserService {
   async findAll(params?: {
-    page?: number
-    limit?: number
-    search?: string
-    status?: boolean
-    onlyWithProfile?: boolean // Adicionado parâmetro de filtro
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: boolean;
+    onlyWithProfile?: boolean;
   }) {
-    const page = Number(params?.page || 1)
-    const limit = Number(params?.limit || 10)
-    const skip = (page - 1) * limit
+    const page = Number(params?.page || 1);
+    const limit = Number(params?.limit || 10);
+    const skip = (page - 1) * limit;
 
-    const where: Prisma.UserWhereInput = {}
+    const where: Prisma.UserWhereInput = {};
 
-    // Filtro de status
     if (params?.status !== undefined) {
-      where.status = params.status
+      where.status = params.status;
     }
 
-    // Filtro de usuários apenas com profile
     if (params?.onlyWithProfile) {
-      where.profile = {
-        isNot: null
-      }
+      where.profileId = { not: null };
     }
 
-    // Filtro de busca (nome ou email)
     if (params?.search) {
       where.OR = [
-        {
-          name: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
-        },
-        {
-          email: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
-        }
-      ]
+        { name: { contains: params.search, mode: 'insensitive' } },
+        { email: { contains: params.search, mode: 'insensitive' } },
+      ];
     }
 
     const [totalItems, results] = await Promise.all([
@@ -52,61 +37,48 @@ export class UserService {
         where,
         skip,
         take: limit,
-        orderBy: {
-          created_at: 'desc'
-        },
-        include: {
-          profile: true // Inclui os dados do perfil na resposta
-        }
-      })
-    ])
-
-    const totalPages = Math.ceil(totalItems / limit)
+        orderBy: { created_at: 'desc' },
+        include: { profile: true },
+      }),
+    ]);
 
     return {
       page,
-      total_pages: totalPages,
+      total_pages: Math.ceil(totalItems / limit),
       total_items: totalItems,
-      results
-    }
+      results,
+    };
   }
 
   async findById(id: string) {
     return prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        status: true,
+      include: {
         profile: {
-          select: {
-            id: true,
-            name: true,
-            role: true
-          }
+          select: { id: true, name: true, role: true },
         },
-        created_at: true,
-        updated_at: true
-      }
-    })
+      },
+    });
   }
 
   async create(data: {
-    name: string
-    email: string
-    document?: string
-    password: string
+    name: string;
+    email: string;
+    password?: string;
     profileId?: string;
   }) {
-    const passwordHash = await hash(data.password, 8);
+    const passwordHash = data.password ? await hash(data.password, 8) : null;
+
     return prisma.user.create({
       data: {
-        ...data,
+        name: data.name,
+        email: data.email,
         password: passwordHash,
-      }
+        profile: data.profileId ? { connect: { id: data.profileId } } : undefined,
+      },
     });
   }
+
   async update(
     id: string,
     data: {
@@ -121,11 +93,7 @@ export class UserService {
       name: data.name,
       email: data.email,
       status: data.status,
-      profile: {
-        connect: {
-          id: data.profileId
-        }
-      }
+      profile: data.profileId ? { connect: { id: data.profileId } } : undefined,
     };
 
     if (data.password) {
@@ -135,15 +103,13 @@ export class UserService {
     return prisma.user.update({
       where: { id },
       data: updateData,
-      include: {
-        profile: true,
-      },
+      include: { profile: true },
     });
   }
 
   async delete(id: string) {
     return prisma.user.delete({
-      where: { id }
-    })
+      where: { id },
+    });
   }
 }
