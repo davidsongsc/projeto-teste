@@ -116,7 +116,7 @@ senha123
 
 #### USUARIO TESTE 2
 ```
-operador@loja.com
+colab6@empresa.com
 senha123
 ```
 
