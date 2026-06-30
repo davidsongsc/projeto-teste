@@ -63,8 +63,8 @@ cd projeto-teste
 ```
 
 ### 3. Configuração de Variáveis de Ambiente
-projeto-teste/.env
-- Certifique-se de **criar um arquivo** (__.env__) na mesma pasta do  **.env.exemple**, exemplo:
+projeto-teste/api/.env
+- Certifique-se de **criar um arquivo** (__.env__) na pasta api do  **.env.exemple**, exemplo:
 
 ```
 # Configurações do Banco de Dados
@@ -87,7 +87,7 @@ JWT_SECRET=sUperSecret123
 ```
 ### 4. Configuração de Variáveis de Ambiente FrontEnd
  projeto-teste/web/.env
-- - Certifique-se de **criar um arquivo** (__.env__) na mesma pasta web  **.env.exemple**, exemplo:
+- - Certifique-se de **criar um arquivo** (__.env__) na pasta web  **.env.exemple**, exemplo:
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3030/api
 ```
