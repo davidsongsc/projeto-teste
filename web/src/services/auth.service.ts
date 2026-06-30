@@ -3,9 +3,13 @@ interface LoginCredentials {
   email: string;
   password: string;
 }
+interface AuthResponse {
+  token: string;
+  user: any;
+}
 export const authService = {
-  async login(credentials: LoginCredentials): Promise<AuthenticatorResponse> {
-    return await api<AuthenticatorResponse>('/auth/login', {
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    return await api<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });

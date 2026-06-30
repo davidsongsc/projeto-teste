@@ -3,12 +3,15 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { hash } from 'bcryptjs';
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
-const PASSWORD = await hash('senha123', 8);
+
 async function main() {
   console.log('--- Iniciando Seed Completo ---');
+
+  const PASSWORD = await hash('senha123', 8);
 
   // 1. Limpeza
   await prisma.item.deleteMany();
@@ -42,10 +45,10 @@ async function main() {
       { key: 'item:update', module: 'Item', action: 'UPDATE', description: 'Atualizar itens' },
       { key: 'item:delete', module: 'Item', action: 'DELETE', description: 'Deletar itens' },
 
-      { key: 'user:read', module: 'User', action: 'READ', description: 'Visualizar usuários' },
-      { key: 'user:create', module: 'User', action: 'CREATE', description: 'Criar usuários' },
-      { key: 'user:update', module: 'User', action: 'UPDATE', description: 'Atualizar usuários' },
-      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' }
+      { key: 'user:read', module: 'User', action: 'READ', description: 'Visualizar usuários' },
+      { key: 'user:create', module: 'User', action: 'CREATE', description: 'Criar usuários' },
+      { key: 'user:update', module: 'User', action: 'UPDATE', description: 'Atualizar usuários' },
+      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' }
     ]
   });
 
@@ -53,7 +56,6 @@ async function main() {
   const allPermissions = await prisma.permission.findMany();
 
   // 3. Perfis
-  // Administrador: tem todas as permissões de model
   const adminProfile = await prisma.profile.create({
     data: {
       name: 'Administrador',
@@ -62,7 +64,6 @@ async function main() {
     }
   });
 
-  // Operador: leitor de cliente, leitor/criador de pedido
   const operatorProfile = await prisma.profile.create({
     data: {
       name: 'Operador',
@@ -84,12 +85,13 @@ async function main() {
         name: `Cliente ${i}`,
         email: `cliente${i}@email.com`,
         document: `1234567890${i}`,
-        status: Math.random() > 0.3 // 70% de chance de ser true
+        status: Math.random() > 0.3 
       }
     });
     customers.push(customer);
   }
-  // 4. Criar Usuários Principais (Admin e Operador)
+
+  // 4. Criar Usuários Principais
   const usersToCreate = [
     { name: 'Administrador', email: 'admin@loja.com', password: PASSWORD, profileId: adminProfile.id },
     { name: 'Operador', email: 'operador@loja.com', password: PASSWORD, profileId: operatorProfile.id }
@@ -115,10 +117,8 @@ async function main() {
       data: { name: user.name, userId: user.id, profileId: user.profileId! }
     });
 
-    // Seleciona um cliente aleatório para o pedido
     const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
 
-    // Pedido de exemplo vinculado ao cliente
     const itemPrice = 100;
     const itemCount = 1;
     const itemTotal = itemPrice * itemCount;
@@ -141,7 +141,7 @@ async function main() {
         count: itemCount,
         description: 'Item criado pelo seed'
       }
-    })
+    });
   }
 
   console.log('--- Seed Finalizado com sucesso! ---');

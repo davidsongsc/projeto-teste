@@ -101,10 +101,17 @@ Com tudo pronto, suba os containers da aplicação (incluindo o banco de dados e
 docker-compose build
 docker-compose up -d
 ```
-Após subir os containers, verifique se tudo está rodando corretamente com o comando:
+Após subir os containers, talvez seja necessario rodar o generate do prisma :
+#### Migração caso não ocorra naturalmente
 ```
-docker-compose ps
+docker exec -u root -it logistic-order-api npx prisma generate
+docker exec -u root -it logistic-order-api sh -c 'npx prisma migrate dev --name migracao_inicial --url "$DATABASE_URL"'
+docker exec -u root -it logistic-order-api npx tsx prisma/seed.ts
 ```
+#### 
+```
+```
+
 ### Projeto Link
 Acesse para ver o projeto.
 ```
@@ -171,6 +178,115 @@ A abordagem adotada buscou manter o projeto simples, alinhado ao escopo proposto
         +------v------+
         |   migrate   |
         +-------------+
+
+# API Routes
+
+## Authentication
+
+| Method | Route           | Description                                  |
+| ------ | --------------- | -------------------------------------------- |
+| POST   | `/auth/login`   | Authenticate user and generate access token. |
+| POST   | `/auth/refresh` | Refresh the access token.                    |
+| POST   | `/auth/logout`  | Invalidate the current session/token.        |
+| GET    | `/auth/me`      | Return authenticated user information.       |
+
+---
+
+## Users
+
+| Method | Route        | Description                             |
+| ------ | ------------ | --------------------------------------- |
+| GET    | `/users`     | List users with pagination and filters. |
+| GET    | `/users/:id` | Retrieve a specific user by ID.         |
+| POST   | `/users`     | Create a new user.                      |
+| PUT    | `/users/:id` | Update an existing user.                |
+| DELETE | `/users/:id` | Remove a user.                          |
+
+---
+
+## Profiles
+
+| Method | Route           | Description               |
+| ------ | --------------- | ------------------------- |
+| GET    | `/profiles`     | List profiles.            |
+| GET    | `/profiles/:id` | Retrieve a profile by ID. |
+| POST   | `/profiles`     | Create a new profile.     |
+| PUT    | `/profiles/:id` | Update a profile.         |
+| DELETE | `/profiles/:id` | Remove a profile.         |
+
+---
+
+## Permissions
+
+| Method | Route              | Description                  |
+| ------ | ------------------ | ---------------------------- |
+| GET    | `/permissions`     | List permissions.            |
+| GET    | `/permissions/:id` | Retrieve a permission by ID. |
+| POST   | `/permissions`     | Create a permission.         |
+| PUT    | `/permissions/:id` | Update a permission.         |
+| DELETE | `/permissions/:id` | Remove a permission.         |
+
+---
+
+## Collaborators
+
+| Method | Route                       | Description                      |
+| ------ | --------------------------- | -------------------------------- |
+| GET    | `/collaborators`            | List collaborators.              |
+| GET    | `/collaborators/:id`        | Retrieve a collaborator by ID.   |
+| POST   | `/collaborators`            | Create a collaborator.           |
+| PUT    | `/collaborators/:id`        | Update collaborator information. |
+| PATCH  | `/collaborators/:id/status` | Update collaborator status.      |
+| DELETE | `/collaborators/:id`        | Remove a collaborator.           |
+
+---
+
+## Customers
+
+| Method | Route            | Description                  |
+| ------ | ---------------- | ---------------------------- |
+| GET    | `/customers`     | List customers.              |
+| GET    | `/customers/:id` | Retrieve a customer by ID.   |
+| POST   | `/customers`     | Create a customer.           |
+| PUT    | `/customers/:id` | Update customer information. |
+| DELETE | `/customers/:id` | Remove a customer.           |
+
+---
+
+## Products
+
+| Method | Route           | Description                 |
+| ------ | --------------- | --------------------------- |
+| GET    | `/products`     | List products.              |
+| GET    | `/products/:id` | Retrieve a product by ID.   |
+| POST   | `/products`     | Create a product.           |
+| PUT    | `/products/:id` | Update product information. |
+| DELETE | `/products/:id` | Remove a product.           |
+
+---
+
+## Orders
+
+| Method | Route         | Description                              |
+| ------ | ------------- | ---------------------------------------- |
+| GET    | `/orders`     | List orders with pagination and filters. |
+| GET    | `/orders/:id` | Retrieve an order by ID.                 |
+| POST   | `/orders`     | Create a new order.                      |
+| PUT    | `/orders/:id` | Update an existing order.                |
+| DELETE | `/orders/:id` | Remove an order.                         |
+
+---
+
+## Items
+
+| Method | Route        | Description             |
+| ------ | ------------ | ----------------------- |
+| GET    | `/items`     | List order items.       |
+| GET    | `/items/:id` | Retrieve an item by ID. |
+| POST   | `/items`     | Create an item.         |
+| PUT    | `/items/:id` | Update an item.         |
+| DELETE | `/items/:id` | Remove an item.         |
+
 ## Testes de Regras de Negócio e Permissões
 
 Foram implementados testes unitários com foco na validação de regras de negócio do módulo de pedidos e controle de acesso baseado em perfil de usuário.
