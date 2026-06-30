@@ -1,0 +1,7 @@
+{
+  "resolveAlias": {
+    "@": "./src"
+  },
+  "resolveFullPaths": true,
+  "addExtension": "js"
+}

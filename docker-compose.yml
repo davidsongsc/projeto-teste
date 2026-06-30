@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15-alpine
@@ -11,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - /opt/logistic/postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     logging:
       driver: "json-file"
       options:
@@ -36,6 +34,7 @@ services:
         max-file: "3"
     networks:
       - backend
+
   migrate:
     build:
       context: ./api
@@ -56,7 +55,8 @@ services:
       PNPM_PACKAGE_IMPORT_CONFIRM: "false"
     networks:
       - backend
-    command: sh -c "npx prisma migrate deploy"
+    command: sh -c "pnpm exec prisma migrate deploy"
+
   api:
     build:
       context: ./api
@@ -98,10 +98,13 @@ services:
         max-file: "3"
     networks:
       - frontend
+      - backend 
     ports:
       - "3000:3000"
+
 networks:
   backend:
-    internal: true
+    name: projeto-teste_backend
   frontend:
+    name: projeto-teste_frontend
     driver: bridge

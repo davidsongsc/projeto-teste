@@ -6,6 +6,8 @@ node_modules
 # Dependencies
 node_modules/
 
+# Exemplo de como deve estar
+!prisma/migrations
 # Build
 dist/
 build/

@@ -3,24 +3,22 @@ FROM node:22-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Dependências de sistema necessárias
-RUN apk add --no-cache libc6-compat openssl
-
-# Gerenciamento de pacotes
+RUN apk add --no-cache openssl libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY package.json pnpm-lock.yaml* .npmrc* pnpm-workspace.yaml* ./
-RUN pnpm install --frozen-lockfile
-
+COPY package.json pnpm-lock.yaml* ./
+RUN apk add --no-cache openssl libc6-compat python3 make g++
 COPY . .
 
-# Placeholder para o generate não falhar sem acesso ao banco
+RUN pnpm add dotenv
+
 RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" npx prisma generate
 
 RUN CI=true pnpm test
 
-ARG BUILD_APP=true
-RUN if [ "$BUILD_APP" = "true" ]; then pnpm build; fi
+RUN pnpm build
+
+RUN pnpm prune --prod
 
 # Estágio de Execução (Runner)
 FROM node:22-alpine AS runner
@@ -31,13 +29,14 @@ RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
-# Copia apenas o necessário para rodar
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/package.json ./package.json
-COPY --from=builder /usr/src/app/dist ./dist 
+COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/prisma ./prisma
 
-# Porta padrão (ajuste se necessário)
-EXPOSE 3000
+RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
+USER nodejs
 
-CMD ["node", "dist/index.js"]
+EXPOSE 3030
+
+CMD ["node", "dist/index.mjs"]

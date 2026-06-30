@@ -6,7 +6,7 @@ export async function api<T = any>(
 ): Promise<T> {
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3030/api';
     // Se a base estiver indefinida, interrompemos imediatamente para não gerar URL errada
-    if (!baseUrl) {
+    if (!BASE_URL) {
         console.error("ERRO CRÍTICO: NEXT_PUBLIC_API_URL não está definida!");
         throw new Error("Configuração de API ausente");
     }
@@ -21,7 +21,7 @@ export async function api<T = any>(
 
     try {
         // Concatenação direta e clara
-        const url = `${baseUrl}${endpoint}`;
+        const url = `${BASE_URL}${endpoint}`;
         const response = await fetch(url, { ...options, headers });
 
         if (!response.ok) {
