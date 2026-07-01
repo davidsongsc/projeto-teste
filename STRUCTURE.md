@@ -24,6 +24,7 @@
 │   │   │   ├── customer.controller.ts
 │   │   │   ├── item.controller.ts
 │   │   │   ├── order.controller.ts
+│   │   │   ├── orderItems.controller.ts
 │   │   │   ├── permission.controller.ts
 │   │   │   ├── profile.controller.ts
 │   │   │   └── user.controller.ts
@@ -37,6 +38,7 @@
 │   │   ├── middlewares
 │   │   │   ├── auth.ts
 │   │   │   ├── authorizeMiddleware.ts
+│   │   │   ├── cacheMiddleware.test.ts
 │   │   │   ├── cacheMiddleware.ts
 │   │   │   ├── checkPermissionMiddleware.ts
 │   │   │   └── errorMiddleware.ts
@@ -47,19 +49,32 @@
 │   │   │   ├── index.ts
 │   │   │   ├── item.routes.ts
 │   │   │   ├── order.routes.ts
+│   │   │   ├── orderItem.routes.ts
 │   │   │   ├── permission.routes.ts
+│   │   │   ├── profile.routes.test.ts
 │   │   │   ├── profile.routes.ts
 │   │   │   └── user.routes.ts
 │   │   ├── services
+│   │   │   ├── auth.service.test.ts
 │   │   │   ├── auth.service.ts
+│   │   │   ├── collaborator.service.test.ts
 │   │   │   ├── collaborator.service.ts
+│   │   │   ├── customer.service.test.ts
 │   │   │   ├── customer.service.ts
+│   │   │   ├── item.service.test.ts
 │   │   │   ├── item.service.ts
 │   │   │   ├── order.service.test.ts
 │   │   │   ├── order.service.ts
+│   │   │   ├── orderItems.service.test.ts
+│   │   │   ├── orderItems.service.ts
+│   │   │   ├── permission.service.test.ts
 │   │   │   ├── permission.service.ts
+│   │   │   ├── profile.service.test.ts
 │   │   │   ├── profile.service.ts
+│   │   │   ├── user.service.test.ts
 │   │   │   └── user.service.ts
+│   │   ├── utils
+│   │   │   └── OrderInclude.ts
 │   │   ├── app.ts
 │   │   └── index.ts
 │   ├── .dockerignore
@@ -84,6 +99,8 @@
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
 │   │   │   └── page.tsx
+│   │   ├── profilers
+│   │   │   └── page.tsx
 │   │   ├── users
 │   │   │   └── page.tsx
 │   │   ├── favicon.ico
@@ -106,7 +123,9 @@
 │   │   │   │   └── UnauthorizedAccess
 │   │   │   │       └── index.tsx
 │   │   │   ├── Buttons
-│   │   │   │   └── DeleteButton
+│   │   │   │   ├── DeleteButton
+│   │   │   │   │   └── index.tsx
+│   │   │   │   └── EditButton
 │   │   │   │       └── index.tsx
 │   │   │   ├── Collaborator
 │   │   │   │   ├── Actions
@@ -122,6 +141,8 @@
 │   │   │   │       └── index.tsx
 │   │   │   ├── Customer
 │   │   │   │   ├── Actions
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── AutoComplete
 │   │   │   │   │   └── index.tsx
 │   │   │   │   ├── Create
 │   │   │   │   │   └── index.tsx
@@ -155,6 +176,20 @@
 │   │   │   │       │   └── index.tsx
 │   │   │   │       └── Sales
 │   │   │   │           └── index.tsx
+│   │   │   ├── Profiler
+│   │   │   │   ├── Actions
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── Create
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── Details
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── Edit
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── Form
+│   │   │   │   │   └── index.tsx
+│   │   │   │   └── List
+│   │   │   │       ├── columns.tsx
+│   │   │   │       └── index.tsx
 │   │   │   └── User
 │   │   │       ├── Actions
 │   │   │       │   └── index.tsx
@@ -167,20 +202,27 @@
 │   │   │       └── List
 │   │   │           ├── columns.tsx
 │   │   │           └── index.tsx
+│   │   ├── enum
+│   │   │   └── role.enum.ts
 │   │   ├── hooks
 │   │   │   ├── useAuth.ts
 │   │   │   ├── useCollaborator.ts
 │   │   │   ├── useCustomers.ts
 │   │   │   ├── useDebounce.ts
+│   │   │   ├── useItems.ts
 │   │   │   ├── useOrders.ts
-│   │   │   ├── useProfiles.ts
+│   │   │   ├── usePermissions.ts
+│   │   │   ├── useProfilers.ts
 │   │   │   └── useUsers.ts
 │   │   ├── interfaces
 │   │   │   ├── collaborator.ts
 │   │   │   ├── customer.ts
 │   │   │   ├── filters.ts
+│   │   │   ├── item.ts
 │   │   │   ├── listResponse.ts
 │   │   │   ├── order.ts
+│   │   │   ├── pagination.ts
+│   │   │   ├── permission.ts
 │   │   │   ├── profile.ts
 │   │   │   └── user.ts
 │   │   ├── services
@@ -188,23 +230,31 @@
 │   │   │   ├── auth.service.ts
 │   │   │   ├── collaborator.service.ts
 │   │   │   ├── customers.serivce.ts
+│   │   │   ├── item.service.ts
 │   │   │   ├── order.service.ts
+│   │   │   ├── permission.service.ts
 │   │   │   ├── profiles.service.ts
 │   │   │   └── users.service.ts
 │   │   ├── store
 │   │   │   ├── useAuthStore.ts
 │   │   │   ├── useCollaboratorStore.ts
 │   │   │   ├── useCustomerStore.ts
+│   │   │   ├── useItemStore.ts
 │   │   │   ├── useOrderStore.ts
+│   │   │   ├── usePermissionsStore.ts
+│   │   │   ├── useProfilerStore.ts
 │   │   │   └── useUsersStore.ts
-│   │   └── theme
-│   │       ├── providers
-│   │       │   ├── NotificationProvider.tsx
-│   │       │   └── ThemeProvider.tsx
-│   │       ├── antd.ts
-│   │       ├── colors.ts
-│   │       ├── index.ts
-│   │       └── types.ts
+│   │   ├── theme
+│   │   │   ├── providers
+│   │   │   │   ├── NotificationProvider.tsx
+│   │   │   │   └── ThemeProvider.tsx
+│   │   │   ├── antd.ts
+│   │   │   ├── colors.ts
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
+│   │   └── utils
+│   │       ├── hasPermission.test.ts
+│   │       └── hasPermission.ts
 │   ├── .dockerignore
 │   ├── .env
 │   ├── .gitignore
@@ -212,6 +262,7 @@
 │   ├── CLAUDE.md
 │   ├── Dockerfile
 │   ├── eslint.config.mjs
+│   ├── next-env.d.ts
 │   ├── next.config.ts
 │   ├── package.json
 │   ├── pnpm-lock.yaml
@@ -220,6 +271,7 @@
 │   └── tsconfig.json
 ├── .dockerignore
 ├── .env
+├── .gitignore
 ├── docker-compose.yml
 ├── package-lock.json
 ├── README.md

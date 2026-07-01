@@ -295,17 +295,155 @@ A abordagem adotada buscou manter o projeto simples, alinhado ao escopo proposto
 | PUT    | `/items/:id` | Update an item.         |
 | DELETE | `/items/:id` | Remove an item.         |
 
+## Permissions
+
+| Method | Route                             | Description                                   |
+| ------ | --------------------------------- | --------------------------------------------- |
+| GET    | `/permissions`                    | List permissions with pagination and filters. |
+| GET    | `/permissions/:id`                | Retrieve a permission by ID.                  |
+| GET    | `/permissions/profile/:profileId` | Retrieve permissions by profile ID.           |
+| POST   | `/permissions`                    | Create a new permission.                      |
+| PUT    | `/permissions/:id`                | Update an existing permission.                |
+| DELETE | `/permissions/:id`                | Remove a permission.                          |
+
+## Order Items
+
+| Method | Route               | Description                          |
+| ------ | ------------------- | ------------------------------------ |
+| POST   | `/order-items`      | Add an item to an order.             |
+| PUT    | `/order-items/:id`  | Update an order item.                |
+| DELETE | `/order-items/:id`  | Remove an item from an order.        |
+
 ## Testes de Regras de Negócio e Permissões
 
 Foram implementados testes unitários com foco na validação de regras de negócio do módulo de pedidos e controle de acesso baseado em perfil de usuário.
 
 O objetivo é garantir que operações críticas não possam ser executadas em estados inválidos ou por usuários sem permissão adequada.
 
-### Regras de negócio cobertas (Orders)
+### checkPermission Middleware
 
-- Não permitir a criação de pedido para cliente inativo  
-- Não permitir pedido sem itens  
-- Não permitir item com quantidade igual a zero  
+Valida o controle de acesso baseado em permissões (RBAC).
+
+**Cenários testados:**
+
+- Bloqueia o acesso quando o usuário não possui a permissão exigida, retornando **HTTP 403 (Forbidden)**.
+- Permite a execução da requisição quando o usuário possui a permissão necessária, chamando o próximo middleware (`next`).
+
+### Cache Middleware
+
+Valida o comportamento do middleware de cache para otimizar requisições de leitura.
+
+**Cenários testados:**
+
+- Ignora o cache em requisições diferentes de **GET**, permitindo que o fluxo continue normalmente.
+- Permite a execução da requisição quando não existe conteúdo armazenado em cache.
+- Retorna os dados armazenados em cache e interrompe o fluxo da requisição quando uma entrada válida é encontrada.
+
+
+### AuthService
+
+Valida o processo de autenticação e geração do token de acesso.
+
+**Cenários testados:**
+
+- Impede o login quando o usuário não existe.
+- Impede o login quando o usuário não possui uma senha cadastrada.
+- Impede o login quando a senha informada é inválida.
+- Autentica o usuário com credenciais válidas, gerando um token JWT e retornando os dados do usuário juntamente com suas permissões.
+
+### OrderService
+
+Valida as principais regras de negócio para a criação de pedidos.
+
+**Cenários testados:**
+
+- Impede a criação de pedidos sem itens.
+- Impede a criação de pedidos cujo valor total calculado seja igual ou inferior a zero.
+- Impede a criação de pedidos quando um ou mais produtos informados não existem no sistema.
+- Impede a criação de pedidos para clientes inativos ou inexistentes.
+- Cria o pedido com sucesso quando todas as validações são atendidas, calculando o valor total e persistindo os dados da operação.
+
+### CustomerService
+
+Valida as regras de negócio para o cadastro de clientes.
+
+**Cenários testados:**
+
+- Impede o cadastro quando o e-mail não é informado.
+- Impede o cadastro quando o nome não é informado.
+- Impede o cadastro quando o documento não é informado.
+- Realiza o cadastro do cliente com sucesso quando todos os dados obrigatórios são válidos.
+
+### ItemService
+
+Valida as regras de negócio para o cadastro de itens.
+
+**Cenários testados:**
+
+- Impede o cadastro quando o nome do item não é informado.
+- Impede o cadastro quando o preço não é informado.
+- Realiza o cadastro do item com sucesso quando os dados obrigatórios são válidos.
+- Permite o cadastro do item sem descrição, tratando esse campo como opcional.
+
+### OrderService
+
+Valida as principais regras de negócio para a criação de pedidos.
+
+**Cenários testados:**
+
+- Impede a criação de pedidos sem itens.
+- Impede a criação de pedidos cujo valor total calculado seja igual ou inferior a zero.
+- Impede a criação de pedidos quando um ou mais produtos informados não existem no sistema.
+- Impede a criação de pedidos para clientes inativos ou inexistentes.
+- Cria o pedido com sucesso quando todas as validações são atendidas, calculando o valor total e persistindo os dados da operação.
+
+### OrderItemService
+
+Valida as regras de negócio para o gerenciamento dos itens de um pedido.
+
+**Cenários testados:**
+
+- Adiciona um item a um pedido existente com sucesso.
+- Impede a inclusão de itens em pedidos inexistentes.
+- Atualiza a quantidade e/ou o valor total de um item existente.
+- Impede a atualização de itens de pedido inexistentes.
+- Remove um item de pedido existente.
+- Impede a remoção de itens de pedido inexistentes.
+
+### PermissionService
+
+Valida as regras de negócio para o cadastro de permissões.
+
+**Cenários testados:**
+
+- Impede o cadastro quando a chave da permissão (`key`) não é informada.
+- Impede o cadastro quando o módulo (`module`) não é informado.
+- Impede o cadastro quando a ação (`action`) não é informada.
+- Realiza o cadastro da permissão com sucesso quando todos os dados obrigatórios são válidos.
+- Permite o cadastro da permissão sem descrição, tratando esse campo como opcional.
+
+### ProfileService
+
+Valida as regras de negócio para o cadastro de perfis de acesso.
+
+**Cenários testados:**
+
+- Impede o cadastro quando o nome do perfil não é informado.
+- Impede o cadastro quando a função (`role`) não é informada.
+- Realiza o cadastro do perfil com sucesso quando todos os dados obrigatórios são válidos.
+- Permite o cadastro do perfil sem descrição, tratando esse campo como opcional.
+
+### UserService
+
+Valida as regras de negócio para o cadastro de usuários.
+
+**Cenários testados:**
+
+- Impede o cadastro quando o nome não é informado.
+- Impede o cadastro quando o e-mail não é informado.
+- Impede o cadastro quando a senha não é informada.
+- Realiza o cadastro do usuário com sucesso, gerando o hash da senha antes da persistência dos dados.
+- Permite o cadastro de usuários sem um perfil associado, tratando o vínculo com o perfil como opcional.
 
 ### Regras de permissão (Profiles)
 
