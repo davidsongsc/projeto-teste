@@ -79,6 +79,9 @@ export class PermissionService {
     action: string
     description?: string
   }) {
+    if (!data.key) throw new Error('Chave é obrigatória.')
+    if (!data.module) throw new Error('Módulo é obrigatório.')
+    if (!data.action) throw new Error('Ação é obrigatória.')
     return prisma.permission.create({
       data
     })
