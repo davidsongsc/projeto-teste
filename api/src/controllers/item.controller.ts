@@ -9,13 +9,11 @@ export class ItemController {
       const page = req.query.page as string
       const limit = req.query.limit as string
       const search = req.query.search as string
-      const orderId = req.query.orderId as string
 
       const result = await itemService.findAll({
         page: page ? Number(page) : undefined,
         limit: limit ? Number(limit) : undefined,
-        search,
-        orderId
+        search        
       })
 
       return res.status(200).json(result)
@@ -56,7 +54,6 @@ export class ItemController {
   async store(req: Request, res: Response) {
     try {
       const {
-        orderId,
         name,
         price,
         total,
@@ -65,7 +62,6 @@ export class ItemController {
       } = req.body
 
       const item = await itemService.create({
-        orderId,
         name,
         price: Number(price),
         total: Number(total),
@@ -92,7 +88,6 @@ export class ItemController {
       const data = req.body
 
       const item = await itemService.update(id, {
-        orderId: data.orderId,
         name: data.name,
         price: data.price !== undefined ? Number(data.price) : undefined,
         total: data.total !== undefined ? Number(data.total) : undefined,

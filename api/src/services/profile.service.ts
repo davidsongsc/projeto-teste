@@ -62,8 +62,6 @@ export class ProfileService {
   }
 
   async findById(id: string) {
-    // 1. Verifica se o ID é um UUID válido antes de ir ao banco
-    // Isso evita erros de validação do próprio Prisma
     if (!id || id.length < 36) {
       throw new Error('ID de perfil inválido');
     }
@@ -78,7 +76,7 @@ export class ProfileService {
       }
     });
 
-    // 2. Se não encontrou, lance um erro específico para o controller capturar
+
     if (!profile) {
       throw new Error('Perfil não encontrado');
     }
@@ -91,6 +89,8 @@ export class ProfileService {
     role: string
     description?: string
   }) {
+    if (!data.name) throw new Error('Nome é obrigatório.')
+    if (!data.role) throw new Error('Função é obrigatória.')
     return prisma.profile.create({
       data
     })

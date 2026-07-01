@@ -77,6 +77,9 @@ export class CustomerService {
         email: string
         status?: boolean
     }) {
+        if (!data.name) throw new Error('Nome é obrigatório.')
+        if (!data.email) throw new Error('Email é obrigatório.')
+        if (!data.document) throw new Error('Documento é obrigatório.')
         return prisma.customer.create({
             data
         })
@@ -91,6 +94,7 @@ export class CustomerService {
             status?: boolean
         }
     ) {
+
         return prisma.customer.update({
             where: { id },
             data

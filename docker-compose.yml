@@ -98,10 +98,28 @@ services:
         max-file: "3"
     networks:
       - frontend
-      - backend 
+      - backend
     ports:
       - "3000:3000"
-
+  studio:
+    build:
+      context: ./api
+      target: builder
+      args:
+        BUILD_APP: "false"
+    container_name: logistic-order-studio
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    command: pnpm exec prisma studio --port 5555 --browser none
+    ports:
+      - "127.0.0.1:5555:5555"
+    networks:
+      - backend
+      
 networks:
   backend:
     name: projeto-teste_backend

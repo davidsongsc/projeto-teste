@@ -75,8 +75,6 @@ model Order {
 
 model Item {
   id          String   @id @default(uuid())
-  order       Order    @relation(fields: [orderId], references: [id])
-  orderId     String
   name        String
   price       Decimal  @db.Decimal(10, 2)
   total       Decimal  @db.Decimal(10, 2)
