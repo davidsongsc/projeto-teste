@@ -15,7 +15,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    ports:
+      - "5432:5432"
     networks:
+      - frontend
       - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
@@ -55,8 +58,11 @@ services:
       PNPM_PACKAGE_IMPORT_CONFIRM: "false"
     networks:
       - backend
-    command: sh -c "pnpm exec prisma migrate deploy"
-
+    command: >
+      sh -c "
+        pnpm exec prisma generate &&
+        pnpm exec prisma migrate deploy
+      "
   api:
     build:
       context: ./api
@@ -79,7 +85,7 @@ services:
     networks:
       - backend
       - frontend
-
+    
   web:
     build:
       context: ./web
@@ -98,10 +104,28 @@ services:
         max-file: "3"
     networks:
       - frontend
-      - backend 
+      - backend
     ports:
       - "3000:3000"
-
+  studio:
+    build:
+      context: ./api
+      target: builder
+      args:
+        BUILD_APP: "false"
+    container_name: logistic-order-studio
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    command: pnpm exec prisma studio --port 5555 --browser none
+    ports:
+      - "127.0.0.1:5555:5555"
+    networks:
+      - backend
+      
 networks:
   backend:
     name: projeto-teste_backend

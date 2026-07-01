@@ -66,6 +66,18 @@ export class PermissionService {
       results
     }
   }
+  
+  async findByProfileId(profileId: string) {
+    return await prisma.permission.findMany({
+      where: {
+        profiles: {
+          some: {
+            id: profileId
+          }
+        }
+      }
+    });
+  }
 
   async findById(id: string) {
     return prisma.permission.findUnique({
@@ -79,6 +91,9 @@ export class PermissionService {
     action: string
     description?: string
   }) {
+    if (!data.key) throw new Error('Chave é obrigatória.')
+    if (!data.module) throw new Error('Módulo é obrigatório.')
+    if (!data.action) throw new Error('Ação é obrigatória.')
     return prisma.permission.create({
       data
     })

@@ -13,7 +13,8 @@ async function main() {
 
   const PASSWORD = await hash('senha123', 8);
 
-  // 1. Limpeza
+  // 1. Limpeza (Atenção à ordem: OrderItem deve ser apagado primeiro devido à FK)
+  await prisma.orderItem.deleteMany();
   await prisma.item.deleteMany();
   await prisma.order.deleteMany();
   await prisma.collaborator.deleteMany();
@@ -27,8 +28,8 @@ async function main() {
     data: [
       { key: 'customer:read', module: 'Customer', action: 'READ', description: 'Visualizar clientes' },
       { key: 'customer:create', module: 'Customer', action: 'CREATE', description: 'Cadastrar clientes' },
-      { key: 'customer:delete', module: 'Customer', action: 'DELETE', description: 'Deletar clientes' },
       { key: 'customer:update', module: 'Customer', action: 'UPDATE', description: 'Atualizar clientes' },
+      { key: 'customer:delete', module: 'Customer', action: 'DELETE', description: 'Deletar clientes' },
 
       { key: 'order:read', module: 'Order', action: 'READ', description: 'Visualizar pedidos' },
       { key: 'order:create', module: 'Order', action: 'CREATE', description: 'Criar pedidos' },
@@ -48,10 +49,25 @@ async function main() {
       { key: 'user:read', module: 'User', action: 'READ', description: 'Visualizar usuários' },
       { key: 'user:create', module: 'User', action: 'CREATE', description: 'Criar usuários' },
       { key: 'user:update', module: 'User', action: 'UPDATE', description: 'Atualizar usuários' },
-      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' }
-    ]
-  });
+      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' },
 
+      { key: 'profile:read', module: 'Profile', action: 'READ', description: 'Visualizar perfis' },
+      { key: 'profile:create', module: 'Profile', action: 'CREATE', description: 'Criar perfis' },
+      { key: 'profile:update', module: 'Profile', action: 'UPDATE', description: 'Atualizar perfis' },
+      { key: 'profile:delete', module: 'Profile', action: 'DELETE', description: 'Deletar perfis' },
+
+      { key: 'permission:read', module: 'Permission', action: 'READ', description: 'Visualizar permissões' },
+      { key: 'permission:create', module: 'Permission', action: 'CREATE', description: 'Criar permissões' },
+      { key: 'permission:update', module: 'Permission', action: 'UPDATE', description: 'Atualizar permissões' },
+      { key: 'permission:delete', module: 'Permission', action: 'DELETE', description: 'Deletar permissões' },
+
+      { key: 'orderitem:read', module: 'OrderItem', action: 'READ', description: 'Visualizar itens do pedido' },
+      { key: 'orderitem:create', module: 'OrderItem', action: 'CREATE', description: 'Criar itens do pedido' },
+      { key: 'orderitem:update', module: 'OrderItem', action: 'UPDATE', description: 'Atualizar itens do pedido' },
+      { key: 'orderitem:delete', module: 'OrderItem', action: 'DELETE', description: 'Deletar itens do pedido' }
+    ],
+    skipDuplicates: true
+  });
   // Recupera todas as permissões para o Admin
   const allPermissions = await prisma.permission.findMany();
 
@@ -72,7 +88,8 @@ async function main() {
         connect: [
           { key: 'customer:read' },
           { key: 'order:read' },
-          { key: 'order:create' }
+          { key: 'order:create' },
+          { key: 'item:read' },
         ]
       }
     }
@@ -85,7 +102,7 @@ async function main() {
         name: `Cliente ${i}`,
         email: `cliente${i}@email.com`,
         document: `1234567890${i}`,
-        status: Math.random() > 0.3 
+        status: Math.random() > 0.3
       }
     });
     customers.push(customer);
@@ -102,7 +119,20 @@ async function main() {
     await prisma.collaborator.create({ data: { name: user.name, userId: user.id, profileId: user.profileId! } });
   }
 
-  // 5. Criar 8 Colaboradores adicionais
+  // 5. Criar no mínimo 5 itens (Catálogo de Produtos Global)
+  const items = [];
+  for (let i = 1; i <= 5; i++) {
+    const item = await prisma.item.create({
+      data: {
+        name: `Produto ${String.fromCharCode(64 + i)}`, // Produto A, B, C, D, E
+        price: i * 25.50, // Preços: 25.50, 51.00, 76.50...
+        description: `Descrição do Produto ${String.fromCharCode(64 + i)} no catálogo`
+      }
+    });
+    items.push(item);
+  }
+
+  // 6. Criar 8 Colaboradores e 8 Pedidos (Cumpre a regra de no mínimo 3 orders)
   for (let i = 1; i <= 8; i++) {
     const user = await prisma.user.create({
       data: {
@@ -118,28 +148,27 @@ async function main() {
     });
 
     const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
+    const randomItem = items[Math.floor(Math.random() * items.length)];
 
-    const itemPrice = 100;
-    const itemCount = 1;
-    const itemTotal = itemPrice * itemCount;
+    const itemCount = 2; // Quantidade fictícia vendida
+    const itemTotal = Number(randomItem.price) * itemCount;
 
-    const order = await prisma.order.create({
+    // Criando o pedido e inserindo o OrderItem na mesma operação
+    await prisma.order.create({
       data: {
         userId: user.id,
         customerId: randomCustomer.id,
         totalPrice: itemTotal,
-        status: 'CONFIRMED'
-      }
-    });
-
-    await prisma.item.create({
-      data: {
-        orderId: order.id,
-        name: 'Produto A',
-        price: itemPrice,
-        total: itemTotal,
-        count: itemCount,
-        description: 'Item criado pelo seed'
+        status: 'CONFIRMED',
+        items: {
+          create: [
+            {
+              itemId: randomItem.id,
+              count: itemCount,
+              total: itemTotal
+            }
+          ]
+        }
       }
     });
   }

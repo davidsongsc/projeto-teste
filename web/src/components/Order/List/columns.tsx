@@ -4,6 +4,7 @@ import { Order } from '@/src/interfaces/order';
 import { DeleteButton } from '@/src/components/Buttons/DeleteButton';
 import { EditOrder } from '../Edit';
 import Link from 'next/link';
+import { Item } from '@/src/interfaces/item';
 
 const currency = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -109,7 +110,7 @@ export const getOrderColumns = (
             render: (_, record) => (
                 <Space>
 
-                    <EditOrder id={record.id} />
+                    <EditOrder id={record.id}  />
                     <DeleteButton
                         id={record.id}
                         onConfirm={onDelete}

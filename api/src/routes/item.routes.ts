@@ -41,7 +41,7 @@ const controller = new ItemController()
 router.get(
     '/',
     ensureAuthenticated,
-    checkPermission('items:read'),
+    checkPermission('item:read'),
     cacheMiddleware('items', 60),
     controller.index)
 
@@ -67,7 +67,7 @@ router.get(
 router.get(
     '/:id',
     ensureAuthenticated,
-    checkPermission('items:read'),
+    checkPermission('item:read'),
     cacheMiddleware('items', 60),
     controller.show)
 
@@ -106,7 +106,7 @@ router.get(
 router.post(
     '/',
     ensureAuthenticated,
-    checkPermission('items:create'),
+    checkPermission('item:create'),
     controller.store)
 
 /**
@@ -146,7 +146,7 @@ router.post(
 router.put(
     '/:id',
     ensureAuthenticated,
-    checkPermission('items:update'),
+    checkPermission('item:update'),
     controller.update)
 
 /**
@@ -171,7 +171,7 @@ router.put(
 router.delete(
     '/:id',
     ensureAuthenticated,
-    checkPermission('items:delete'),
+    checkPermission('item:delete'),
     controller.delete)
 
 export default router

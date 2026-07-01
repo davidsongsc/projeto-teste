@@ -1,32 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Button, Spin } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { OrderForm } from '../Form';
 import { orderService } from '@/src/services/order.service';
 import { useOrders } from '@/src/hooks/useOrders';
+import { Item } from '@/src/interfaces/item';
 import { notification } from '@/src/components/Notification/notification';
+import { useItems } from '@/src/hooks/useItems';
 
 interface EditOrderProps {
     id: string;
+    availableItems?: Item[];
 }
-
 
 export const EditOrder = ({ id }: EditOrderProps) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
     const [orderData, setOrderData] = useState<any>(null);
-    const { updateOrder, fetchOrders } = useOrders();
+
+    const { updateOrder, } = useOrders();
+    const { items: availableItems } = useItems();
 
     const handleOpen = async () => {
         setIsModalVisible(true);
         setLoadingData(true);
         try {
-            const data = await orderService.getById(id) as any;
+            const data = await orderService.getById(id);
             setOrderData(data);
         } catch (error) {
-            notification.error('Erro', 'Não foi possível carregar os dados do pedido.');
+            notification.error(error);
+            setIsModalVisible(false);
         } finally {
             setLoadingData(false);
         }
@@ -35,11 +40,9 @@ export const EditOrder = ({ id }: EditOrderProps) => {
     const handleSubmit = async (values: any) => {
         try {
             await updateOrder(id, values);
-            notification.success('Sucesso', 'Pedido atualizado com sucesso!');
             setIsModalVisible(false);
-            // Opcional: fetchOrders(); // Se necessário para atualizar estado da lista
         } catch (error) {
-            notification.error('Erro', 'Ocorreu um erro ao tentar atualizar o pedido.');
+            notification.error(error);
         }
     };
 
@@ -54,15 +57,19 @@ export const EditOrder = ({ id }: EditOrderProps) => {
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
-                 
+                destroyOnClose
+                width={800}
             >
                 {loadingData ? (
-                    <div className="flex justify-center p-10"><Spin /></div>
-                ) : (
+                    <div className="flex justify-center p-10"><Spin size="large" /></div>
+                ) : orderData ? (
                     <OrderForm
                         initialValues={orderData}
+                        availableItems={availableItems}
                         onSubmit={handleSubmit}
                     />
+                ) : (
+                    <div className="text-center p-10">Dados não encontrados.</div>
                 )}
             </Modal>
         </>

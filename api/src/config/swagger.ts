@@ -9,12 +9,20 @@ export const swaggerSpec = swaggerJsdoc({
     },
     servers: [
       {
-        url: 'http://localhost:3030/api'
+        url: process.env.NODE_ENV === 'production'
+          ? 'http://localhost:3030/api' // Produção
+          : 'http://localhost:3030/api'
       }
     ]
   },
+
   apis: [
-    './src/routes/*.ts',
-    './src/routes/**/*.ts'
+    process.env.NODE_ENV === 'production'
+      ? './dist/routes/**/*.js'
+      : './src/routes/**/*.ts',
+
+    process.env.NODE_ENV === 'production'
+      ? './dist/controllers/**/*.js'
+      : './src/controllers/**/*.ts'
   ]
 })

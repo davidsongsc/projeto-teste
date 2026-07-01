@@ -1,63 +1,65 @@
 'use client';
 
-import { Form, Input, Button, Select, InputNumber, Card, List, Typography, Badge, Space } from 'antd';
+import { Form, Input, Button, Select, Card, List, Typography, Badge, Space, Divider, InputNumber, Row, Col } from 'antd';
+import { useEffect } from 'react';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
 
-interface OrderItem {
-  id: string;
-  name: string;
-  price: string;
-  total: string;
-  count: number;
-}
-
-interface Order {
-  id: string;
-  userId: string;
-  customerId: string;
-  totalPrice: string;
-  status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
-  user: { name: string; email: string };
-  items: OrderItem[];
-}
-
 interface OrderFormProps {
-  initialValues?: Order;
+  initialValues?: any;
+  availableItems?: any[];
   loading?: boolean;
   onSubmit: (values: any) => void;
 }
 
-export const OrderForm = ({ initialValues, loading, onSubmit }: OrderFormProps) => {
+export const OrderForm = ({ initialValues, availableItems, loading, onSubmit }: OrderFormProps) => {
   const [form] = Form.useForm();
 
   const formatCurrency = (val: string | number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(val));
 
+  useEffect(() => {
+    if (initialValues) {
+      form.resetFields();
+      form.setFieldsValue({
+        ...initialValues,
+        totalPrice: Number(initialValues.totalPrice)
+      });
+    }
+  }, [initialValues, form]);
+
   return (
     <Card className="shadow-sm">
-      <Title level={4}>Resumo do Pedido</Title>
+      <Title level={4}>Edição de Pedido</Title>
       
       <Form 
         form={form} 
         layout="vertical" 
-        onFinish={onSubmit} 
-        initialValues={{
-          ...initialValues,
-          totalPrice: initialValues ? Number(initialValues.totalPrice) : 0
-        }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        onFinish={onSubmit}
+        initialValues={initialValues}
+        className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"
       >
-        {/* Campos ocultos para manter IDs no submit */}
         <Form.Item name="id" hidden><Input /></Form.Item>
-        <Form.Item name="customerId" hidden><Input /></Form.Item>
-        <Form.Item name="userId" hidden><Input /></Form.Item>
 
-        <Form.Item label="Responsável">
-          <Input value={initialValues?.user?.name || '-'} disabled className="bg-gray-50" />
+        <Divider  plain>Dados do Vendedor</Divider>
+        <Form.Item label="Nome">
+          <Input value={initialValues?.user?.name || '-'} disabled />
+        </Form.Item>
+        <Form.Item label="E-mail">
+          <Input value={initialValues?.user?.email || '-'} disabled />
         </Form.Item>
 
-        <Form.Item name="status" label="Status" rules={[{ required: true }]}>
+        <Divider  plain>Dados do Cliente</Divider>
+        <Form.Item label="Cliente">
+          <Input value={initialValues?.customer?.name || '-'} disabled />
+        </Form.Item>
+        <Form.Item label="CPF/CNPJ">
+          <Input value={initialValues?.customer?.document || '-'} disabled />
+        </Form.Item>
+
+        <Divider  plain>Detalhes do Pedido</Divider>
+        <Form.Item name="status" label="Status do Pedido" rules={[{ required: true }]}>
           <Select>
             <Select.Option value="DRAFT"><Badge status="default" text="Rascunho" /></Select.Option>
             <Select.Option value="CONFIRMED"><Badge status="success" text="Confirmado" /></Select.Option>
@@ -65,38 +67,42 @@ export const OrderForm = ({ initialValues, loading, onSubmit }: OrderFormProps) 
           </Select>
         </Form.Item>
 
-        <Form.Item name="totalPrice" label="Valor Total" rules={[{ required: true }]}>
-          <InputNumber 
-            prefix="R$" 
-            className="w-full" 
-            step={0.01} 
-            precision={2} 
+        <Form.Item label="Valor Total">
+          <Input 
+            value={formatCurrency(initialValues?.totalPrice || 0)} 
+            readOnly 
+            className="font-bold text-blue-600  cursor-not-allowed" 
           />
         </Form.Item>
 
         <div className="md:col-span-2">
-          <Text strong>Itens do Pedido ({initialValues?.items?.length || 0})</Text>
-          <List
-            className="mt-2 bg-white rounded-lg border border-gray-200"
-            dataSource={initialValues?.items || []}
-            renderItem={(item) => (
-              <List.Item className="px-4 hover:bg-gray-50">
-                <div className="flex justify-between w-full">
-                  <Space direction="vertical" size={0}>
-                    <Text strong>{item.name}</Text>
-                    <Text type="secondary">Qtd: {item.count} | Un: {formatCurrency(item.price)}</Text>
+          <Divider  plain>Gerenciar Itens</Divider>
+          <Form.List name="items">
+            {(fields, { add, remove }) => (
+              <div className="space-y-4">
+                {fields.map(({ key, name, ...restField }) => (
+                  <Space key={key} style={{ display: 'flex' }} align="start" className=" p-3 rounded-lg">
+                    <Form.Item {...restField} name={[name, 'itemId']} rules={[{ required: true }]} style={{ width: 250 }}>
+                      <Select placeholder="Produto" options={availableItems?.map(i => ({ label: i.name, value: i.id }))} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'count']} rules={[{ required: true }]} style={{ width: 100 }}>
+                      <InputNumber placeholder="Qtd" min={1} className="w-full" />
+                    </Form.Item>
+                    <Button danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />
                   </Space>
-                  <Text strong className="text-blue-600">{formatCurrency(item.total)}</Text>
-                </div>
-              </List.Item>
+                ))}
+                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                  Adicionar Item
+                </Button>
+              </div>
             )}
-          />
+          </Form.List>
         </div>
 
         <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t">
           <Button onClick={() => form.resetFields()}>Restaurar</Button>
           <Button type="primary" htmlType="submit" loading={loading}>
-            {initialValues ? 'Atualizar Pedido' : 'Criar Pedido'}
+            Atualizar Pedido
           </Button>
         </div>
       </Form>

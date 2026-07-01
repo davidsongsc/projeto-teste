@@ -3,42 +3,44 @@ import { prisma } from '@/lib/prisma'
 
 export class ProfileService {
   async findAll(params?: {
-    page?: number
-    limit?: number
-    search?: string
-    status?: boolean
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: boolean;
   }) {
-    const page = Number(params?.page || 1)
-    const limit = Number(params?.limit || 10)
-    const skip = (page - 1) * limit
+    const page = Math.max(1, Number(params?.page ?? 1));
+    const limit = Math.max(1, Number(params?.limit ?? 10));
+    const skip = (page - 1) * limit;
 
-    const where: Prisma.ProfileWhereInput = {}
+    const where: Prisma.ProfileWhereInput = {};
 
-    if (params?.status !== undefined) {
-      where.status = params.status
+    if (typeof params?.status === 'boolean') {
+      where.status = params.status;
     }
 
-    if (params?.search) {
+    if (params?.search?.trim()) {
+      const search = params.search.trim();
+
       where.OR = [
         {
           name: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
+            contains: search,
+            mode: 'insensitive',
+          },
         },
         {
           role: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
+            contains: search,
+            mode: 'insensitive',
+          },
         },
         {
           description: {
-            contains: params.search,
-            mode: 'insensitive'
-          }
-        }
-      ]
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
 
     const [totalItems, results] = await Promise.all([
@@ -48,22 +50,19 @@ export class ProfileService {
         skip,
         take: limit,
         orderBy: {
-          name: 'asc'
-        }
-      })
-    ])
+          name: 'asc',
+        },
+      }),
+    ]);
 
     return {
       page,
       total_pages: Math.ceil(totalItems / limit),
       total_items: totalItems,
-      results
-    }
+      results,
+    };
   }
-
   async findById(id: string) {
-    // 1. Verifica se o ID é um UUID válido antes de ir ao banco
-    // Isso evita erros de validação do próprio Prisma
     if (!id || id.length < 36) {
       throw new Error('ID de perfil inválido');
     }
@@ -78,7 +77,7 @@ export class ProfileService {
       }
     });
 
-    // 2. Se não encontrou, lance um erro específico para o controller capturar
+
     if (!profile) {
       throw new Error('Perfil não encontrado');
     }
@@ -91,6 +90,8 @@ export class ProfileService {
     role: string
     description?: string
   }) {
+    if (!data.name) throw new Error('Nome é obrigatório.')
+    if (!data.role) throw new Error('Função é obrigatória.')
     return prisma.profile.create({
       data
     })

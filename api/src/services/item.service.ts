@@ -6,17 +6,11 @@ export class ItemService {
     page?: number
     limit?: number
     search?: string
-    orderId?: string
   }) {
     const page = Number(params?.page || 1)
     const limit = Number(params?.limit || 10)
     const skip = (page - 1) * limit
-
     const where: Prisma.ItemWhereInput = {}
-
-    if (params?.orderId) {
-      where.orderId = params.orderId
-    }
 
     if (params?.search) {
       where.name = {
@@ -33,14 +27,6 @@ export class ItemService {
         take: limit,
         orderBy: {
           created_at: 'desc'
-        },
-        include: {
-          order: {
-            select: {
-              id: true,
-              status: true
-            }
-          }
         }
       })
     ])
@@ -55,26 +41,18 @@ export class ItemService {
 
   async findById(id: string) {
     return prisma.item.findUnique({
-      where: { id },
-      include: {
-        order: {
-          select: {
-            id: true,
-            status: true
-          }
-        }
-      }
+      where: { id }
     })
   }
 
   async create(data: {
-    orderId: string
     name: string
     price: Prisma.Decimal | number | string
-    total: Prisma.Decimal | number | string
-    count: number
     description?: string
   }) {
+    if (!data.name) throw new Error('Nome é obrigatório.')
+    if (!data.price) throw new Error('Preço é obrigatório.')
+    
     return prisma.item.create({
       data
     })
@@ -83,11 +61,8 @@ export class ItemService {
   async update(
     id: string,
     data: {
-      orderId?: string
       name?: string
       price?: Prisma.Decimal | number | string
-      total?: Prisma.Decimal | number | string
-      count?: number
       description?: string
     }
   ) {

@@ -65,7 +65,7 @@ model Order {
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId String
 
-  items      Item[]
+  items      OrderItem[]
   totalPrice Decimal @db.Decimal(10, 2)
   status     OrderStatus @default(DRAFT)
 
@@ -73,15 +73,26 @@ model Order {
   updated_at DateTime @updatedAt
 }
 
+model OrderItem {
+  id        String   @id @default(uuid())
+
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  item      Item     @relation(fields: [itemId], references: [id])
+  itemId    String
+  count     Int     
+  total     Decimal  @db.Decimal(10, 2)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model Item {
   id          String   @id @default(uuid())
-  order       Order    @relation(fields: [orderId], references: [id])
-  orderId     String
   name        String
   price       Decimal  @db.Decimal(10, 2)
-  total       Decimal  @db.Decimal(10, 2)
-  count       Int
   description String?
+  orders      OrderItem[]
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }

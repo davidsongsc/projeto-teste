@@ -12,7 +12,7 @@ COPY . .
 
 RUN pnpm add dotenv
 
-RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" npx prisma generate
+RUN DATABASE_URL="postgresql://user:password@db:5432/logistic_order?schema=public" npx prisma generate
 
 RUN CI=true pnpm test
 

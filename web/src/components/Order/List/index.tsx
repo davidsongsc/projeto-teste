@@ -10,6 +10,9 @@ import { getOrderColumns } from './columns';
 import { useRouter } from 'next/navigation';
 import { CreateOrder } from '../Create';
 import { CreateOrderModal } from '../Modal/CreateOrder';
+import { useItems } from '@/src/hooks/useItems';
+import { Item } from '@/src/interfaces/item';
+import { useCustomers } from '@/src/hooks/useCustomers';
 
 export const OrderList = () => {
     const router = useRouter();
@@ -21,7 +24,13 @@ export const OrderList = () => {
 
     const debouncedSearch = useDebounce(searchTerm, 500);
     const { orders, isLoading, pagination, fetchOrders, deleteOrder } = useOrders();
-
+    const { fetchItems } = useItems();
+    const { fetchCustomers } = useCustomers();
+    
+    useEffect(() => {
+        fetchItems();
+        fetchCustomers();
+    }, []);
 
     useEffect(() => {
         if (!user) return;
@@ -37,7 +46,6 @@ export const OrderList = () => {
     const handleEdit = (id: string) => router.push(`/orders/edit/${id}`);
     const handleDelete = (id: string) => deleteOrder(id);
 
-    // Reseta página para 1 quando o filtro muda
     useEffect(() => {
         setCurrentPage(1);
     }, [debouncedSearch, statusFilter]);

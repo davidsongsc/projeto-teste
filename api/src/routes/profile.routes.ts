@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { ProfileController } from '@/controllers/profile.controller'
 import { cacheMiddleware } from '@/middlewares/cacheMiddleware'
+import { checkPermission } from '@/middlewares/checkPermissionMiddleware'
+import { ensureAuthenticated } from '@/middlewares/auth'
 
 const router = Router()
 const controller = new ProfileController()
@@ -33,7 +35,12 @@ const controller = new ProfileController()
  *       '200':
  *         description: Lista de perfis
  */
-router.get('/', cacheMiddleware('profiles', 60), controller.index)
+router.get(
+    '/',
+    ensureAuthenticated,
+    checkPermission('profile:read'),
+    cacheMiddleware('profilers', 60),
+    controller.index)
 
 /**
  * @openapi
@@ -54,7 +61,12 @@ router.get('/', cacheMiddleware('profiles', 60), controller.index)
  *       '404':
  *         description: Perfil não encontrado
  */
-router.get('/:id', cacheMiddleware('profiles', 60), controller.show)
+router.get(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('profile:read'),
+    cacheMiddleware('profilers', 60),
+    controller.show)
 
 /**
  * @openapi
@@ -83,7 +95,11 @@ router.get('/:id', cacheMiddleware('profiles', 60), controller.show)
  *       '201':
  *         description: Perfil criado
  */
-router.post('/', controller.store)
+router.post(
+    '/',
+    ensureAuthenticated,
+    checkPermission('profile:create'),
+    controller.store)
 
 /**
  * @openapi
@@ -118,7 +134,11 @@ router.post('/', controller.store)
  *       '404':
  *         description: Perfil não encontrado
  */
-router.put('/:id', controller.update)
+router.put(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('profile:update'),
+    controller.update)
 
 /**
  * @openapi
@@ -139,6 +159,10 @@ router.put('/:id', controller.update)
  *       '404':
  *         description: Perfil não encontrado
  */
-router.delete('/:id', controller.delete)
+router.delete(
+    '/:id',
+    ensureAuthenticated,
+    checkPermission('profile:delete'),
+    controller.delete)
 
 export default router

@@ -42,7 +42,7 @@ export class UserService {
         omit: { password: true },
       }),
     ]);
-    
+
     return {
       page,
       total_pages: Math.ceil(totalItems / limit),
@@ -69,6 +69,10 @@ export class UserService {
     password?: string;
     profileId?: string;
   }) {
+    if (!data.name) throw new Error('Nome é obrigatório.')
+    if (!data.email) throw new Error('Email é obrigatório.')
+    if (!data.password) throw new Error('Senha é obrigatória.')
+
     const passwordHash = data.password ? await hash(data.password, 8) : null;
 
     return prisma.user.create({

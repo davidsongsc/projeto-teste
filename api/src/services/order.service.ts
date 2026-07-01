@@ -1,17 +1,18 @@
+import 'dotenv/config';
 import { Prisma, OrderStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/errors/AppError'
+import orderInclude from '@/utils/OrderInclude';
 
 interface CreateOrderDTO {
   userId: string;
   customerId: string;
   totalPrice: number | string;
-  status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
+  status?: OrderStatus;
   items: {
-    name: string;
-    price: number | string;
+    itemId: string;
     count: number;
-    description?: string;
+    total: number | string;
   }[];
 }
 
@@ -20,7 +21,7 @@ export class OrderService {
     page?: number;
     limit?: number;
     search?: string;
-    status?: any;
+    status?: OrderStatus;
   }) {
     const page = Number(params?.page || 1);
     const limit = Number(params?.limit || 10);
@@ -44,10 +45,14 @@ export class OrderService {
         skip,
         take: limit,
         orderBy: { created_at: 'desc' },
-        include: { 
+        include: {
           user: { select: { id: true, name: true, email: true } },
           customer: { select: { id: true, name: true, document: true, status: true } },
-          items: true 
+          items: {
+            include: {
+              item: true
+            }
+          }
         }
       })
     ]);
@@ -66,14 +71,17 @@ export class OrderService {
       include: {
         user: { select: { id: true, name: true, email: true } },
         customer: { select: { id: true, name: true, email: true, document: true, status: true } },
-        items: true
+        items: {
+          include: {
+            item: true
+          }
+        }
       }
     });
   }
 
   async create(data: CreateOrderDTO) {
     if (!data.items?.length) throw new AppError('Não é possível criar um pedido sem itens.');
-    if (Number(data.totalPrice) <= 0) throw new AppError('O valor total deve ser maior que zero.');
 
     return await prisma.$transaction(async (tx) => {
       const [user, customer] = await Promise.all([
@@ -84,40 +92,67 @@ export class OrderService {
       if (!user?.status) throw new AppError('Usuário inativo ou não encontrado.');
       if (!customer?.status) throw new AppError('Cliente inativo ou não encontrado.');
 
+      const itemIds = data.items.map(item => item.itemId);
+
+      const dbItems = await tx.item.findMany({
+        where: { id: { in: itemIds } },
+        select: { id: true, price: true }
+      });
+
+      const itemPricesMap = new Map(dbItems.map(item => [item.id, Number(item.price)]));
+
+      let calculatedTotalPrice = 0;
+
+      const orderItemsToCreate = data.items.map(orderItem => {
+        const currentPrice = itemPricesMap.get(orderItem.itemId);
+
+        if (currentPrice === undefined) {
+          throw new AppError(`O produto com ID ${orderItem.itemId} não foi encontrado no sistema.`);
+        }
+
+        const itemTotal = currentPrice * orderItem.count;
+        calculatedTotalPrice += itemTotal;
+
+        return {
+          itemId: orderItem.itemId,
+          count: orderItem.count,
+          total: itemTotal
+        };
+      });
+
+      if (calculatedTotalPrice <= 0) throw new AppError('O valor total calculado deve ser maior que zero.');
+
       return await tx.order.create({
         data: {
           userId: data.userId,
           customerId: data.customerId,
-          totalPrice: data.totalPrice,
-          status: data.status,
+          totalPrice: calculatedTotalPrice,
+          status: data.status || 'DRAFT',
           items: {
-            create: data.items.map(item => ({
-              name: item.name,
-              price: item.price,
-              count: item.count,
-              description: item.description,
-              total: Number(item.price) * item.count
-            }))
+            create: orderItemsToCreate
           }
-        }
+        },
+        include: orderInclude,
       });
     });
   }
 
   async update(id: string, data: {
-    userId?: string;
     customerId?: string;
-    totalPrice?: number | string;
-    status?: any;
+    status?: OrderStatus;
   }) {
     if (data.customerId) {
       const customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
       if (!customer) throw new AppError('Cliente não encontrado.');
     }
 
-    return prisma.order.update({ 
-      where: { id }, 
-      data 
+    return prisma.order.update({
+      where: { id },
+      data: {
+        status: data.status,
+        customerId: data.customerId
+      },
+      include: orderInclude
     });
   }
 
