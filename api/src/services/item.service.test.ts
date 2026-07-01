@@ -23,8 +23,6 @@ describe('ItemService - create', () => {
       service.create({
         name: '' as any,
         price: 10,
-        total: 20,
-        count: 1,
       })
     ).rejects.toThrow('Nome é obrigatório.')
   })
@@ -34,32 +32,9 @@ describe('ItemService - create', () => {
       service.create({
         name: 'Item',
         price: '' as any,
-        total: 20,
-        count: 1,
+
       })
     ).rejects.toThrow('Preço é obrigatório.')
-  })
-
-  it('deve bloquear sem total', async () => {
-    await expect(
-      service.create({
-        name: 'Item',
-        price: 10,
-        total: '' as any,
-        count: 1,
-      })
-    ).rejects.toThrow('Total é obrigatório.')
-  })
-
-  it('deve bloquear sem quantidade', async () => {
-    await expect(
-      service.create({
-        name: 'Item',
-        price: 10,
-        total: 20,
-        count: 0 as any,
-      })
-    ).rejects.toThrow('Quantidade é obrigatória.')
   })
 
   it('deve criar item com sucesso', async () => {
@@ -70,8 +45,6 @@ describe('ItemService - create', () => {
     const result = await service.create({
       name: 'Item 1',
       price: 10,
-      total: 20,
-      count: 2,
       description: 'desc',
     })
 
@@ -79,8 +52,6 @@ describe('ItemService - create', () => {
       data: {
         name: 'Item 1',
         price: 10,
-        total: 20,
-        count: 2,
         description: 'desc',
       },
     })
@@ -96,16 +67,13 @@ describe('ItemService - create', () => {
     await service.create({
       name: 'Item 1',
       price: 10,
-      total: 20,
-      count: 1,
+     
     })
 
     expect(prisma.item.create).toHaveBeenCalledWith({
       data: {
         name: 'Item 1',
         price: 10,
-        total: 20,
-        count: 1,
         description: undefined,
       },
     })

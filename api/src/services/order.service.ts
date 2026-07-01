@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Prisma, OrderStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { AppError } from '@/errors/AppError'
@@ -6,12 +7,11 @@ interface CreateOrderDTO {
   userId: string;
   customerId: string;
   totalPrice: number | string;
-  status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
+  status?: OrderStatus;
   items: {
-    name: string;
-    price: number | string;
+    itemId: string; 
     count: number;
-    description?: string;
+    total: number | string; 
   }[];
 }
 
@@ -20,7 +20,7 @@ export class OrderService {
     page?: number;
     limit?: number;
     search?: string;
-    status?: any;
+    status?: OrderStatus;
   }) {
     const page = Number(params?.page || 1);
     const limit = Number(params?.limit || 10);
@@ -44,10 +44,14 @@ export class OrderService {
         skip,
         take: limit,
         orderBy: { created_at: 'desc' },
-        include: { 
+        include: {
           user: { select: { id: true, name: true, email: true } },
           customer: { select: { id: true, name: true, document: true, status: true } },
-          items: true 
+          items: {
+            include: {
+              item: true 
+            }
+          }
         }
       })
     ]);
@@ -66,7 +70,11 @@ export class OrderService {
       include: {
         user: { select: { id: true, name: true, email: true } },
         customer: { select: { id: true, name: true, email: true, document: true, status: true } },
-        items: true
+        items: {
+          include: {
+            item: true
+          }
+        }
       }
     });
   }
@@ -89,15 +97,18 @@ export class OrderService {
           userId: data.userId,
           customerId: data.customerId,
           totalPrice: data.totalPrice,
-          status: data.status,
+          status: data.status || 'DRAFT',
           items: {
-            create: data.items.map(item => ({
-              name: item.name,
-              price: item.price,
-              count: item.count,
-              description: item.description,
-              total: Number(item.price) * item.count
+            create: data.items.map(orderItem => ({
+              itemId: orderItem.itemId,
+              count: orderItem.count,
+              total: orderItem.total
             }))
+          }
+        },
+        include: {
+          items: {
+            include: { item: true }
           }
         }
       });
@@ -108,16 +119,16 @@ export class OrderService {
     userId?: string;
     customerId?: string;
     totalPrice?: number | string;
-    status?: any;
+    status?: OrderStatus;
   }) {
     if (data.customerId) {
       const customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
       if (!customer) throw new AppError('Cliente não encontrado.');
     }
 
-    return prisma.order.update({ 
-      where: { id }, 
-      data 
+    return prisma.order.update({
+      where: { id },
+      data
     });
   }
 

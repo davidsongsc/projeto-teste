@@ -27,6 +27,7 @@ describe('AuthService - login', () => {
   let service: AuthService
 
   beforeEach(() => {
+    process.env.JWT_SECRET = 'test-secret';
     service = new AuthService()
     vi.clearAllMocks()
   })

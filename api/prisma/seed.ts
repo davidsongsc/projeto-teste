@@ -13,7 +13,8 @@ async function main() {
 
   const PASSWORD = await hash('senha123', 8);
 
-  // 1. Limpeza
+  // 1. Limpeza (Atenção à ordem: OrderItem deve ser apagado primeiro devido à FK)
+  await prisma.orderItem.deleteMany();
   await prisma.item.deleteMany();
   await prisma.order.deleteMany();
   await prisma.collaborator.deleteMany();
@@ -48,7 +49,12 @@ async function main() {
       { key: 'user:read', module: 'User', action: 'READ', description: 'Visualizar usuários' },
       { key: 'user:create', module: 'User', action: 'CREATE', description: 'Criar usuários' },
       { key: 'user:update', module: 'User', action: 'UPDATE', description: 'Atualizar usuários' },
-      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' }
+      { key: 'user:delete', module: 'User', action: 'DELETE', description: 'Deletar usuários' },
+
+      { key: 'profile:read', module: 'Profile', action: 'READ', description: 'Visualizar perfis' },
+      { key: 'profile:create', module: 'Profile', action: 'CREATE', description: 'Criar perfis' },
+      { key: 'profile:update', module: 'Profile', action: 'UPDATE', description: 'Atualizar perfis' },
+      { key: 'profile:delete', module: 'Profile', action: 'DELETE', description: 'Deletar perfis' }
     ]
   });
 
@@ -102,7 +108,20 @@ async function main() {
     await prisma.collaborator.create({ data: { name: user.name, userId: user.id, profileId: user.profileId! } });
   }
 
-  // 5. Criar 8 Colaboradores adicionais
+  // 5. Criar no mínimo 5 itens (Catálogo de Produtos Global)
+  const items = [];
+  for (let i = 1; i <= 5; i++) {
+    const item = await prisma.item.create({
+      data: {
+        name: `Produto ${String.fromCharCode(64 + i)}`, // Produto A, B, C, D, E
+        price: i * 25.50, // Preços: 25.50, 51.00, 76.50...
+        description: `Descrição do Produto ${String.fromCharCode(64 + i)} no catálogo`
+      }
+    });
+    items.push(item);
+  }
+
+  // 6. Criar 8 Colaboradores e 8 Pedidos (Cumpre a regra de no mínimo 3 orders)
   for (let i = 1; i <= 8; i++) {
     const user = await prisma.user.create({
       data: {
@@ -118,28 +137,27 @@ async function main() {
     });
 
     const randomCustomer = customers[Math.floor(Math.random() * customers.length)];
+    const randomItem = items[Math.floor(Math.random() * items.length)];
 
-    const itemPrice = 100;
-    const itemCount = 1;
-    const itemTotal = itemPrice * itemCount;
+    const itemCount = 2; // Quantidade fictícia vendida
+    const itemTotal = Number(randomItem.price) * itemCount;
 
-    const order = await prisma.order.create({
+    // Criando o pedido e inserindo o OrderItem na mesma operação
+    await prisma.order.create({
       data: {
         userId: user.id,
         customerId: randomCustomer.id,
         totalPrice: itemTotal,
-        status: 'CONFIRMED'
-      }
-    });
-
-    await prisma.item.create({
-      data: {
-        orderId: order.id,
-        name: 'Produto A',
-        price: itemPrice,
-        total: itemTotal,
-        count: itemCount,
-        description: 'Item criado pelo seed'
+        status: 'CONFIRMED',
+        items: {
+          create: [
+            {
+              itemId: randomItem.id,
+              count: itemCount,
+              total: itemTotal
+            }
+          ]
+        }
       }
     });
   }
