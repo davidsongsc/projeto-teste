@@ -28,8 +28,8 @@ async function main() {
     data: [
       { key: 'customer:read', module: 'Customer', action: 'READ', description: 'Visualizar clientes' },
       { key: 'customer:create', module: 'Customer', action: 'CREATE', description: 'Cadastrar clientes' },
-      { key: 'customer:delete', module: 'Customer', action: 'DELETE', description: 'Deletar clientes' },
       { key: 'customer:update', module: 'Customer', action: 'UPDATE', description: 'Atualizar clientes' },
+      { key: 'customer:delete', module: 'Customer', action: 'DELETE', description: 'Deletar clientes' },
 
       { key: 'order:read', module: 'Order', action: 'READ', description: 'Visualizar pedidos' },
       { key: 'order:create', module: 'Order', action: 'CREATE', description: 'Criar pedidos' },
@@ -54,10 +54,20 @@ async function main() {
       { key: 'profile:read', module: 'Profile', action: 'READ', description: 'Visualizar perfis' },
       { key: 'profile:create', module: 'Profile', action: 'CREATE', description: 'Criar perfis' },
       { key: 'profile:update', module: 'Profile', action: 'UPDATE', description: 'Atualizar perfis' },
-      { key: 'profile:delete', module: 'Profile', action: 'DELETE', description: 'Deletar perfis' }
-    ]
-  });
+      { key: 'profile:delete', module: 'Profile', action: 'DELETE', description: 'Deletar perfis' },
 
+      { key: 'permission:read', module: 'Permission', action: 'READ', description: 'Visualizar permissões' },
+      { key: 'permission:create', module: 'Permission', action: 'CREATE', description: 'Criar permissões' },
+      { key: 'permission:update', module: 'Permission', action: 'UPDATE', description: 'Atualizar permissões' },
+      { key: 'permission:delete', module: 'Permission', action: 'DELETE', description: 'Deletar permissões' },
+
+      { key: 'orderitem:read', module: 'OrderItem', action: 'READ', description: 'Visualizar itens do pedido' },
+      { key: 'orderitem:create', module: 'OrderItem', action: 'CREATE', description: 'Criar itens do pedido' },
+      { key: 'orderitem:update', module: 'OrderItem', action: 'UPDATE', description: 'Atualizar itens do pedido' },
+      { key: 'orderitem:delete', module: 'OrderItem', action: 'DELETE', description: 'Deletar itens do pedido' }
+    ],
+    skipDuplicates: true
+  });
   // Recupera todas as permissões para o Admin
   const allPermissions = await prisma.permission.findMany();
 
@@ -78,7 +88,8 @@ async function main() {
         connect: [
           { key: 'customer:read' },
           { key: 'order:read' },
-          { key: 'order:create' }
+          { key: 'order:create' },
+          { key: 'item:read' },
         ]
       }
     }
@@ -91,7 +102,7 @@ async function main() {
         name: `Cliente ${i}`,
         email: `cliente${i}@email.com`,
         document: `1234567890${i}`,
-        status: Math.random() > 0.3 
+        status: Math.random() > 0.3
       }
     });
     customers.push(customer);

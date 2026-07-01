@@ -27,7 +27,23 @@ export class PermissionController {
       })
     }
   }
+  async findByProfile(req: Request, res: Response) {
+    try {
+      const profileId = Array.isArray(req.params.profileId)
+        ? req.params.profileId[0]
+        : req.params.profileId
 
+      const permissions = await permissionService.findByProfileId(profileId)
+
+      return res.status(200).json(permissions)
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Erro ao buscar permissões do perfil',
+        error
+      })
+    }
+  }
   async show(req: Request, res: Response) {
     try {
       const id = Array.isArray(req.params.id)
