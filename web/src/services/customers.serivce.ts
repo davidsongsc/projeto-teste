@@ -36,6 +36,17 @@ class CustomerService {
         return response;
     }
 
+    async getAutocomplete(search: string): Promise<{ label: string; value: string }[]> {
+        const response = await api<CustomerListResponse>(
+            `/customers?search=${encodeURIComponent(search)}&limit=10`
+        );
+
+        return response.results.map((c) => ({
+            label: c.name,
+            value: c.id,
+        }));
+    }
+
     async getById(id: string): Promise<CustomerDetails> {
 
         const response = await api<CustomerDetails>(

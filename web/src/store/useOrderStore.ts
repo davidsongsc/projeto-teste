@@ -13,7 +13,7 @@ interface OrderState {
     isLoading: boolean;
     setOrders: (data: { results: Order[]; page: number; total_pages: number; total_items: number }) => void;
     addOrder: (order: Order) => void;
-    updateOrder: (id: string, order: Order) => void;
+    putOrder: (id: string, order: Order) => void;
     removeOrder: (id: string) => void;
     setLoading: (loading: boolean) => void;
 }
@@ -31,7 +31,7 @@ export const useOrderStore = create<OrderState>((set) => ({
         } 
     }),
     addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
-    updateOrder: (id, updatedOrder) => set((state) => ({
+    putOrder: (id, updatedOrder) => set((state) => ({
         orders: state.orders.map((o) => (o.id === id ? updatedOrder : o)),
     })),
     removeOrder: (id) => set((state) => ({

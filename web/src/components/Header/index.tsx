@@ -1,30 +1,45 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Layout, Button, Menu, Typography, Flex, theme, Avatar, Dropdown } from 'antd';
-import { LoginOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/src/store/useAuthStore';
+import {
+    Layout,
+    Button,
+    Menu,
+    Typography,
+    Flex,
+    theme,
+    Avatar,
+    Dropdown,
+    Divider
+} from 'antd';
 
-const { Header: AntHeader } = Layout;
-const { Title, Text } = Typography;
+import {
+    LoginOutlined,
+    UserOutlined,
+    LogoutOutlined,
+    SafetyCertificateOutlined,
+    QuestionCircleOutlined,
+    DollarOutlined,
+    ShopOutlined,
+    SettingOutlined,
+    CoffeeOutlined
+} from '@ant-design/icons';
 
 export default function Header() {
+    const { Header: AntHeader } = Layout;
+    const { Title, Text } = Typography;
     const router = useRouter();
     const { token } = theme.useToken();
     const [mounted, setMounted] = useState(false);
-
-
-    // Acessa o estado de autenticação
     const { user, logout, setLoginModalOpen } = useAuthStore();
-
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
     if (!mounted) return null;
-
 
     return (
         <AntHeader
@@ -69,7 +84,6 @@ export default function Header() {
 
             <Flex align="center" gap={12}>
                 {user ? (
-                    // Estado Logado: Exibe Dropdown com dados do usuário
                     <Dropdown
                         menu={{
                             items: [
@@ -78,31 +92,78 @@ export default function Header() {
                                     label: (
                                         <div style={{ padding: '4px 0' }}>
                                             <Text strong style={{ display: 'block' }}>{user.name}</Text>
-                                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                                                {user.profile?.name || 'Cliente'}
+                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                                {user.profile?.name}
                                             </Text>
                                         </div>
                                     ),
                                     disabled: true,
                                 },
                                 { type: 'divider' },
+
+                                {
+                                    key: 'profile',
+                                    label: 'Meu Perfil',
+                                    icon: <UserOutlined />,
+                                },
+                                {
+                                    key: 'company',
+                                    label: 'Minha Empresa',
+                                    icon: <ShopOutlined />,
+                                },
+                                {
+                                    key: 'settings',
+                                    label: 'Configurações',
+                                    icon: <SettingOutlined />,
+                                },
+
+                                { type: 'divider' },
+
+                                {
+                                    key: 'operator',
+                                    label: 'Área do Operador',
+                                    icon: <CoffeeOutlined />,
+                                },
+                                {
+                                    key: 'financial',
+                                    label: 'Financeiro',
+                                    icon: <DollarOutlined />,
+                                },
+                                {
+                                    key: 'admin',
+                                    label: 'Administração',
+                                    icon: <SafetyCertificateOutlined />,
+                                },
+
+                                { type: 'divider' },
+
+                                {
+                                    key: 'help',
+                                    label: 'Ajuda',
+                                    icon: <QuestionCircleOutlined />,
+                                },
                                 {
                                     key: 'logout',
                                     label: 'Sair',
                                     icon: <LogoutOutlined />,
-                                    onClick: logout,
                                     danger: true,
+                                    onClick: logout,
                                 },
                             ],
                         }}
                     >
                         <Flex align="center" gap={8} style={{ cursor: 'pointer' }}>
                             <Avatar size="small" icon={<UserOutlined />} />
-                            <Text>{user.name}</Text>
+                            <Divider type="vertical" />
+                            <div className="flex flex-col">
+                                <Text>{user.name}</Text>
+                                <Text type="secondary" style={{ fontSize: '12px' }}>
+                                    {user.profile?.name || 'Cliente'}
+                                </Text>
+                            </div>
                         </Flex>
                     </Dropdown>
                 ) : (
-                    // Estado Deslogado: Exibe botão de login
                     <Button
                         type="primary"
                         icon={<LoginOutlined />}

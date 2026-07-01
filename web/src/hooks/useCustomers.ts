@@ -5,6 +5,7 @@ import {
     CreateCustomerDTO,
     UpdateCustomerDTO,
 } from "@/src/interfaces/customer";
+import { notification } from "../components/Notification/notification";
 
 export const useCustomers = () => {
     const {
@@ -26,7 +27,7 @@ export const useCustomers = () => {
             setCustomers(data);
             return data;
         } catch (error) {
-            throw error;
+            notification.error(error);
         } finally {
             setLoading(false);
         }
@@ -39,7 +40,12 @@ export const useCustomers = () => {
             const newCustomer = await customerService.create(data);
             addCustomer(newCustomer);
             return newCustomer;
-        } finally {
+        }
+        catch (error) {
+            notification.error(error);
+
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -54,18 +60,33 @@ export const useCustomers = () => {
             const updatedCustomer = await customerService.update(id, data);
             updateCustomerStore(id, updatedCustomer);
             return updatedCustomer;
-        } finally {
+        }
+        catch (error) {
+            notification.error(error);
+        }
+        finally {
             setLoading(false);
         }
     };
-
+    const autocompleteCustomers = async (search: string) => {
+        try {
+            return await customerService.getAutocomplete(search);
+        } catch (error) {
+            notification.error(error);
+            return [];
+        }
+    };
     const deleteCustomer = async (id: string) => {
         setLoading(true);
 
         try {
             await customerService.remove(id);
             removeCustomer(id);
-        } finally {
+        }
+        catch (error) {
+            notification.error(error);
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -78,5 +99,6 @@ export const useCustomers = () => {
         createCustomer,
         updateCustomer,
         deleteCustomer,
+        autocompleteCustomers,
     };
 };

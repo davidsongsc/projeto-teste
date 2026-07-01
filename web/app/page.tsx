@@ -15,9 +15,13 @@ import {
     TeamOutlined,
     UserOutlined,
     AppstoreOutlined,
+
     SettingOutlined,
     RightOutlined,
     ProfileOutlined,
+    LoadingOutlined,
+    UserSwitchOutlined,
+    ProductOutlined,
 } from '@ant-design/icons';
 
 import { useRouter } from 'next/navigation';
@@ -42,24 +46,41 @@ export default function DashboardPage() {
             icon: <TeamOutlined style={{ fontSize: 36 }} />,
             path: '/customers',
         },
-       /* {
-            title: 'Produtos',
-            description: 'Cadastre e organize produtos.',
-            icon: <AppstoreOutlined style={{ fontSize: 36 }} />,
-            path: '/products',
-        },*/
         {
             title: 'Usuários',
             description: 'Controle acessos e autenticação.',
             icon: <UserOutlined style={{ fontSize: 36 }} />,
             path: '/users',
         },
-       
+        {
+            title: 'Perfis',
+            description: 'Cadastre e organize perfis.',
+            icon: <UserSwitchOutlined style={{ fontSize: 36 }} />,
+            path: '/profilers',
+        },
+        {
+            title: 'Produtos',
+            description: 'Cadastre e organize produtos.',
+            icon: <AppstoreOutlined style={{ fontSize: 36 }} />,
+            //path: '/products',
+        },
+        {
+            title: 'Itens',
+            description: 'Cadastre e organize itens.',
+            icon: <ProductOutlined style={{ fontSize: 36 }} />,
+            //path: '/suppliers',
+        },
+        {
+            title: 'Feedback',
+            description: 'Avalie o sistema.',
+            icon: <LoadingOutlined style={{ fontSize: 36 }} />,
+            // path: '/feedback',
+        },
         {
             title: 'Configurações',
             description: 'Preferências do sistema.',
             icon: <SettingOutlined style={{ fontSize: 36 }} />,
-            path: '/settings',
+            //path: '/settings',
         },
     ];
 
@@ -110,11 +131,17 @@ export default function DashboardPage() {
                         >
                             <Card
                                 hoverable
-                                onClick={() => router.push(item.path)}
+                                onClick={() => {
+                                    if (item.path) {
+                                        router.push(item.path);
+                                    }
+                                }}
+
                                 style={{
                                     height: 220,
                                     borderRadius: token.borderRadiusLG,
-                                    cursor: 'pointer',
+                                    cursor: item.path ? 'pointer' : 'not-allowed',
+
                                 }}
                                 styles={{
                                     body: {
@@ -122,6 +149,7 @@ export default function DashboardPage() {
                                         flexDirection: 'column',
                                         justifyContent: 'space-between',
                                         height: '100%',
+                                        opacity: item.path ? 1 : 0.5,
                                     },
                                 }}
                             >
