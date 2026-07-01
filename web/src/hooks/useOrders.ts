@@ -1,17 +1,17 @@
 import { orderService } from '@/src/services/order.service';
 import { useOrderStore } from '@/src/store/useOrderStore';
 import { OrderFilters, CreateOrderDTO, UpdateOrderDTO } from '@/src/interfaces/order';
-
+import { notification } from '@/src/components/Notification/notification';
 export const useOrders = () => {
-  const { 
-    orders, 
-    pagination, 
-    isLoading, 
-    setLoading, 
-    setOrders, 
-    addOrder, 
-    updateOrder: updateOrderStore, 
-    removeOrder 
+  const {
+    orders,
+    pagination,
+    isLoading,
+    setLoading,
+    setOrders,
+    addOrder,
+    putOrder,
+    removeOrder
   } = useOrderStore();
 
   const fetchOrders = async (params?: OrderFilters) => {
@@ -19,10 +19,9 @@ export const useOrders = () => {
     try {
       const data = await orderService.list(params);
       setOrders(data);
-      return data; // Retornamos para facilitar o uso no componente se necessário
+      return data;
     } catch (error) {
-      // O tratamento de erro ocorre globalmente no api.ts
-      throw error; 
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -33,8 +32,13 @@ export const useOrders = () => {
     try {
       const newOrder = await orderService.create(data);
       addOrder(newOrder);
+      notification.success('Pedido criado com sucesso!', `O pedido ${newOrder.id} foi criado com sucesso.`);
       return newOrder;
-    } finally {
+    }
+    catch (error) {
+      notification.error(error);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -43,9 +47,13 @@ export const useOrders = () => {
     setLoading(true);
     try {
       const updatedOrder = await orderService.update(id, data);
-      updateOrderStore(id, updatedOrder); // Atualiza no Zustand
+      putOrder(id, updatedOrder);
+      notification.success('Pedido atualizado com sucesso!');
       return updatedOrder;
-    } finally {
+    } catch (error) {
+      notification.error(error);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -55,7 +63,12 @@ export const useOrders = () => {
     try {
       await orderService.remove(id);
       removeOrder(id);
-    } finally {
+      notification.success('Pedido excluído com sucesso!');
+    }
+    catch (error) {
+      notification.error(error);
+    }
+    finally {
       setLoading(false);
     }
   };

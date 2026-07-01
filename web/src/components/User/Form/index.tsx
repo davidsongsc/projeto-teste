@@ -2,7 +2,7 @@
 
 import { Form, Input, Button, Select, Card, Switch } from 'antd';
 import { useEffect } from 'react';
-import { useProfiles } from '@/src/hooks/useProfiles';
+import { useProfilers } from '@/src/hooks/useProfilers';
 interface UserFormProps {
   initialValues?: any;
   loading?: boolean;
@@ -11,7 +11,7 @@ interface UserFormProps {
 
 export const UserForm = ({ initialValues, loading, onSubmit }: UserFormProps) => {
   const [form] = Form.useForm();
-  const { profiles, loading: loadingProfiles } = useProfiles();
+  const { profilers, isLoading: loadingProfiles } = useProfilers();
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues);
@@ -63,7 +63,7 @@ export const UserForm = ({ initialValues, loading, onSubmit }: UserFormProps) =>
             className="w-full"
             loading={loadingProfiles} // Mostra um spinner enquanto carrega
           >
-            {profiles.map((profile: any) => (
+            {profilers.map((profile: any) => (
               <Select.Option key={profile.id} value={profile.id}>
                 {profile.name}
               </Select.Option>

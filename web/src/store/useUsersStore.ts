@@ -1,11 +1,8 @@
 import { create } from 'zustand';
 import { User } from '@/src/interfaces/user';
+import { Pagination } from '../interfaces/pagination';
 
-interface Pagination {
-    page: number;
-    total_pages: number;
-    total_items: number;
-}
+
 
 interface UserState {
     users: User[];
@@ -21,7 +18,7 @@ interface UserState {
 export const useUserStore = create<UserState>((set) => ({
     users: [],
     pagination: { page: 1, total_pages: 0, total_items: 0 },
-    isLoading: true, // Iniciamos em true para camuflar o carregamento inicial
+    isLoading: true, 
     setUsers: (data) => set({ 
         users: data.results,
         pagination: { 
