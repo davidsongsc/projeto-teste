@@ -48,14 +48,11 @@ export class ItemService {
   async create(data: {
     name: string
     price: Prisma.Decimal | number | string
-    total: Prisma.Decimal | number | string
-    count: number
     description?: string
   }) {
     if (!data.name) throw new Error('Nome é obrigatório.')
     if (!data.price) throw new Error('Preço é obrigatório.')
-    if (!data.total) throw new Error('Total é obrigatório.')
-    if (!data.count) throw new Error('Quantidade é obrigatória.')
+    
     return prisma.item.create({
       data
     })
@@ -66,8 +63,6 @@ export class ItemService {
     data: {
       name?: string
       price?: Prisma.Decimal | number | string
-      total?: Prisma.Decimal | number | string
-      count?: number
       description?: string
     }
   ) {

@@ -38,7 +38,7 @@ const controller = new ProfileController()
 router.get(
     '/',
     ensureAuthenticated,
-    checkPermission('profiler:read'),
+    checkPermission('profile:read'),
     cacheMiddleware('profilers', 60),
     controller.index)
 
@@ -64,7 +64,7 @@ router.get(
 router.get(
     '/:id',
     ensureAuthenticated,
-    checkPermission('profiler:read'),
+    checkPermission('profile:read'),
     cacheMiddleware('profilers', 60),
     controller.show)
 
@@ -98,7 +98,7 @@ router.get(
 router.post(
     '/',
     ensureAuthenticated,
-    checkPermission('profiler:create'),
+    checkPermission('profile:create'),
     controller.store)
 
 /**
@@ -137,7 +137,7 @@ router.post(
 router.put(
     '/:id',
     ensureAuthenticated,
-    checkPermission('profiler:update'),
+    checkPermission('profile:update'),
     controller.update)
 
 /**
@@ -162,7 +162,7 @@ router.put(
 router.delete(
     '/:id',
     ensureAuthenticated,
-    checkPermission('profiler:delete'),
+    checkPermission('profile:delete'),
     controller.delete)
 
 export default router

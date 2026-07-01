@@ -66,6 +66,18 @@ export class PermissionService {
       results
     }
   }
+  
+  async findByProfileId(profileId: string) {
+    return await prisma.permission.findMany({
+      where: {
+        profiles: {
+          some: {
+            id: profileId
+          }
+        }
+      }
+    });
+  }
 
   async findById(id: string) {
     return prisma.permission.findUnique({

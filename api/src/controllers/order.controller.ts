@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { OrderService } from '@/services/order.service'
 import { AppError } from '@/errors/AppError'
+import { OrderStatus } from '@prisma/client'
 
 const service = new OrderService()
 
@@ -13,7 +14,7 @@ export class OrderController {
         page: page ? Number(page) : undefined,
         limit: limit ? Number(limit) : undefined,
         search: search as string,
-        status: status as string
+        status: status ? (status as OrderStatus) : undefined
       })
 
       return res.status(200).json(result)
@@ -24,7 +25,7 @@ export class OrderController {
 
   async show(req: Request, res: Response) {
     try {
-      const id = req.params.id as string;
+      const id = req.params.id as string
       const order = await service.findById(id)
 
       if (!order) {
@@ -39,20 +40,18 @@ export class OrderController {
 
   async store(req: Request, res: Response) {
     try {
-      // Recebendo os dados conforme a interface CreateOrderDTO
       const { userId, customerId, totalPrice, status, items } = req.body
 
       const order = await service.create({
         userId,
         customerId,
         totalPrice: Number(totalPrice),
-        status,
-        items // Array de itens necessário para a criação
+        status: status as OrderStatus,
+        items
       })
 
       return res.status(201).json(order)
     } catch (error) {
-      // Tratamento específico para AppError caso queira exibir a mensagem do erro
       if (error instanceof AppError) {
         return res.status(400).json({ success: false, message: error.message })
       }
@@ -62,7 +61,7 @@ export class OrderController {
 
   async update(req: Request, res: Response) {
     try {
-      const id = req.params.id as string;
+      const id = req.params.id as string
       const { userId, customerId, totalPrice, status } = req.body
 
       const order = await service.update(id, {
@@ -83,7 +82,7 @@ export class OrderController {
 
   async delete(req: Request, res: Response) {
     try {
-      const id = req.params.id as string;
+      const id = req.params.id as string
       await service.delete(id)
 
       return res.status(204).send()

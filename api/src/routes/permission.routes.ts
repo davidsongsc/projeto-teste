@@ -33,7 +33,7 @@ const controller = new PermissionController()
  *       '200':
  *         description: Lista de permissões
  */
-router.get('/',cacheMiddleware('permissions', 60), controller.index)
+router.get('/', cacheMiddleware('permissions', 60), controller.index)
 
 /**
  * @openapi
@@ -55,6 +55,27 @@ router.get('/',cacheMiddleware('permissions', 60), controller.index)
  *         description: Permissão não encontrada
  */
 router.get('/:id', cacheMiddleware('permissions', 60), controller.show)
+
+/**
+ * @openapi
+ * /permissions/profile/{profileId}:
+ *   get:
+ *     tags:
+ *       - Permissions
+ *     summary: Busca permissões por perfil
+ *     parameters:
+ *       - in: path
+ *         name: profileId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Permissões encontradas
+ *       '404':
+ *         description: Permissão não encontrada
+ */
+router.get('/profile/:profileId', cacheMiddleware('permissions', 600), controller.findByProfile)
 
 /**
  * @openapi
